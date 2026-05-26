@@ -5,7 +5,7 @@ Core contract cho IaC Checkov AWS Power. File này được load TRƯỚC mọi 
 ## Defaults
 
 - Language: `vi` (Vietnamese) cho giải thích, English cho commands/output
-- Scan mode: **FULL SCAN** — tất cả checks Checkov cung cấp (750+)
+- Scan mode: **FULL SCAN** — tất cả checks Checkov cung cấp (456)
 - Framework detection: Auto (Terraform/CloudFormation/Serverless)
 - Execution: Trực tiếp trên máy local
 - Output format: JSON + CLI
@@ -87,7 +87,7 @@ custom_checks: ./custom_checks/
 
 ### Full-Scan Default
 - KHÔNG dùng `--check` hoặc `--hard-fail-on` khi scan
-- Quét TẤT CẢ 750+ checks → phân loại severity SAU
+- Quét TẤT CẢ 456 checks → phân loại severity SAU
 - Chỉ filter khi user yêu cầu compliance-specific
 
 ### Append-Only Tracking

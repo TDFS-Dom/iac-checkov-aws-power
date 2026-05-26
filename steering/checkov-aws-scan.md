@@ -65,7 +65,7 @@ Tạo scan plan và trình user. Format:
 | Target | {dir} ({N} .tf files) |
 | Framework | terraform |
 | Mode | **FULL SCAN** — tất cả checks Checkov cung cấp |
-| Checks | ALL (~750+ AWS policies) |
+| Checks | ALL (~456 AWS checks) |
 | Baseline | {Yes/No — nếu có .checkov.baseline} |
 | Output | .checkov-reports/ |
 | Estimated Time | ~{N}s |
@@ -112,7 +112,7 @@ Tạo file `.checkov-reports/plans/plan-{NNN}.md` với nội dung plan.
 **MẶC ĐỊNH: Quét TOÀN BỘ checks mà Checkov cung cấp cho AWS** — KHÔNG filter hay limit checks trừ khi user yêu cầu cụ thể.
 
 ```bash
-# FULL AWS SCAN — tất cả built-in checks (750+ policies)
+# FULL AWS SCAN — tất cả built-in checks (456 AWS checks)
 checkov -d {target_dir} \
   --framework {framework} \
   --compact \

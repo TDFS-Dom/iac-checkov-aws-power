@@ -3,6 +3,7 @@ name: "iac-checkov-aws"
 displayName: "IaC Checkov AWS"
 description: "Scan và bảo mật AWS Infrastructure as Code (Terraform, CloudFormation) bằng Checkov. Chạy trực tiếp local với plan, tracking, memory giữa sessions, và remediation tự động."
 keywords: ["iac", "checkov", "terraform", "cloudformation", "aws", "security", "compliance", "cis", "pci-dss", "hipaa", "soc2", "policy-as-code", "cloud-security", "infrastructure-as-code", "devsecops", "scanning"]
+author: "TDFS-Dom"
 ---
 
 # IaC Checkov AWS — Kiro Power
@@ -20,7 +21,7 @@ plan → scan → analyze → track → remediate → verify → report
 
 **Key capabilities:**
 - Chạy Checkov trực tiếp trên local machine
-- Full scan mặc định (750+ AWS policies — KHÔNG filter)
+- Full scan mặc định (456 AWS checks — KHÔNG filter)
 - Plan trước mỗi scan (user approve trước khi execute)
 - Tracking history giữa các lần scan (delta comparison)
 - Project memory (decisions, suppressions, patterns)
@@ -92,7 +93,7 @@ Tôi muốn suppress CKV_AWS_17 cho dev environment — đánh giá impact
 Full rules in `secops-contract.md`. Key points:
 
 1. **Plan-First** — KHÔNG scan khi chưa có user approve plan
-2. **Full-Scan Default** — Quét TẤT CẢ 750+ checks, phân loại SAU
+2. **Full-Scan Default** — Quét TẤT CẢ 456 checks, phân loại SAU
 3. **Append-Only** — Tracking history chỉ append, KHÔNG overwrite
 4. **Fail-Closed** — Ambiguous directory? Stop and ask
 5. **Impact-First** — Thay đổi scope/suppression → impact analysis trước
@@ -187,7 +188,7 @@ Pending: 5 (0 CRITICAL, 3 HIGH, 2 MEDIUM)
 - Initial release
 - Lifecycle-driven architecture (contract, routing, token-budget)
 - 5 steering files (2 always-loaded + 3 on-demand)
-- Full scan default (750+ AWS policies)
+- Full scan default (456 AWS checks)
 - Plan → Scan → Analyze → Track → Remediate → Verify → Report
 - State-aware continuation (tiếp tục → inspect → recommend)
 - Project memory pattern for cross-session continuity
