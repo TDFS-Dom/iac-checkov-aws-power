@@ -41,7 +41,7 @@ Scan toàn bộ Landing Zone
 Power sẽ scan **recursive** toàn bộ workspace — bao gồm tất cả subdirectories:
 
 ```
-acb-terraform-custom/
+your-landing-zone/
 ├── _modules/               ← scan
 ├── level0-foundation/      ← scan
 ├── level1-security/        ← scan
@@ -121,7 +121,7 @@ Tạo baseline cho infrastructure hiện tại
 Sau khi scan, power tạo (tại root của Landing Zone):
 
 ```
-acb-terraform-custom/
+your-landing-zone/
 ├── .checkov-reports/
 │   ├── tracking.md              # Scan history + delta + per-level breakdown
 │   ├── project-memory.md        # Decisions, suppressions, known issues
