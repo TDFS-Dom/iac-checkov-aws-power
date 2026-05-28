@@ -15,13 +15,15 @@ Tạo files:
 .checkov-reports/
 ├── state/
 │   ├── tracking.md            ← from templates/tracking.md
-│   └── project-memory.md     ← from references/project-memory-template.md
+│   └── project-memory.md     ← from templates/project-memory.md
 └── scans/
     ├── 001/
     │   ├── plan.md            ← scan plan đã approve
     │   ├── metadata.md        ← from templates/metadata.md
     │   ├── results.json       ← checkov output (raw, không sửa)
-    │   └── summary.md         ← from templates/summary.md
+    │   ├── summary.md         ← from templates/summary.md
+    │   ├── remediation-plan.md ← from templates/remediation-plan.md
+    │   └── tech-debt.md       ← from templates/tech-debt.md
     └── latest.txt             ← nội dung: "001"
 ```
 
@@ -42,7 +44,9 @@ Tạo files:
     │   ├── metadata.md
     │   ├── results.json
     │   ├── summary.md
-    │   └── delta.md           ← from templates/delta.md (so sánh vs previous)
+    │   ├── delta.md           ← from templates/delta.md (so sánh vs previous)
+    │   ├── remediation-plan.md
+    │   └── tech-debt.md
     └── latest.txt             ← update nội dung: "{NEXT}"
 ```
 
