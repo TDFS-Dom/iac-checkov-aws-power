@@ -187,7 +187,7 @@ mv .checkov-reports/scans/$NEXT/results_json.json .checkov-reports/scans/$NEXT/r
 - [ ] `state/project-memory.md` — update nếu có decision mới
 - [ ] `scans/latest.txt` — overwrite với scan number hiện tại
 
-**KHÔNG ĐƯỢC dừng sau bước này nếu user yêu cầu "scan toàn bộ dự án" hoặc "scan full" — PHẢI tiếp tục Phase 3 → Phase 7 (full pipeline).**
+**KHÔNG ĐƯỢC dừng sau bước này nếu user yêu cầu "scan toàn bộ dự án" hoặc "scan full" — PHẢI tiếp tục Phase 3 → Phase 4 (full pipeline). Phase 5–7 chỉ chạy khi user yêu cầu cụ thể (fix/verify/report).**
 
 Verify:
 ```bash
@@ -222,7 +222,7 @@ print(f'skipped={s.get(\"skipped\",0)}')
 # Findings by severity
 python3 -c "
 import json
-with open('.checkov-reports/results.json') as f:
+with open('.checkov-reports/scans/$NEXT/results.json') as f:
     data = json.load(f)
 failed = data.get('results', {}).get('failed_checks', [])
 sev = {}
@@ -239,14 +239,14 @@ for k in ['CRITICAL','HIGH','MEDIUM','LOW','UNKNOWN']:
 # Top findings list
 python3 -c "
 import json
-with open('.checkov-reports/results.json') as f:
+with open('.checkov-reports/scans/$NEXT/results.json') as f:
     data = json.load(f)
 failed = data.get('results', {}).get('failed_checks', [])
 # Sort by severity
 order = {'CRITICAL':0,'HIGH':1,'MEDIUM':2,'LOW':3,'UNKNOWN':4}
 failed.sort(key=lambda x: order.get(x.get('severity','UNKNOWN'), 4))
 for f in failed[:10]:
-    print(f'{f[\"check_id\"]} | {f.get(\"severity\",\"?\")} | {f[\"check_result\"][\"evaluated_keys\"]} | {f[\"file_path\"]}:{f[\"file_line_range\"][0]}')
+    print(f'{f[\"check_id\"]} | {f.get(\"severity\",\"?\")} | {f[\"resource\"]} | {f[\"file_path\"]}:{f[\"file_line_range\"][0]}')
 "
 ```
 
@@ -289,17 +289,22 @@ Trình user theo format bảng:
 
 ## PHASE 4: TRACK
 
-### Step 4.1: Generate Scan Artifacts
+### Step 4.1: Verify Per-Scan Artifacts (đã tạo ở Phase 2.5)
 
-Sau mỗi scan, tạo các files trong `scans/{NNN}/`:
-- `metadata.md` — from template `references/templates/metadata.md`
-- `summary.md` — from template `references/templates/summary.md`
-- `delta.md` — from template `references/templates/delta.md` (từ scan #002)
+Confirm tất cả files đã tạo ở Phase 2.5 tồn tại trong `scans/{NNN}/`:
+- `metadata.md`, `summary.md`, `remediation-plan.md`, `tech-debt.md`, `plan.md`, `results.json`
+- `delta.md` — chỉ từ scan #002 (tạo ở step 4.3 nếu chưa có)
+
+Nếu thiếu file nào → tạo ngay từ template + results.json data.
 
 ### Step 4.2: Update Tracking
 
 **APPEND** entry mới vào `.checkov-reports/state/tracking.md`:
 - Nếu file chưa tồn tại → tạo từ template `references/templates/tracking.md`
+  - `{project_name}` = workspace folder name (basename of target directory)
+  - `{root_directory}` = target directory used in scan (from plan.md)
+  - `{YYYY-MM-DD}` = current date
+  - `Total Scans` = 1 (first scan)
 - Thêm row mới vào Timeline table
 - Update "Total Scans" và "Latest Scan" trong header
 
@@ -320,8 +325,22 @@ So sánh với scan trước (`scans/{NNN-1}/results.json`):
 Agent PHẢI chạy TOÀN BỘ pipeline KHÔNG DỪNG giữa chừng:
 
 ```
-Phase 1 (Plan) → Phase 2 (Scan) → Phase 3 (Analyze) → Phase 4 (Track)
+Phase 1 (Plan) → Phase 2 (Scan) → Phase 3 (Analyze) → Phase 4 (Track) → Generate ALL per-scan files
 ```
+
+**Per-scan files BẮT BUỘC tạo trong `scans/{NNN}/`:**
+- `plan.md` — đã tạo ở Phase 1
+- `metadata.md` — scan context
+- `results.json` — renamed từ Checkov output
+- `summary.md` — parsed findings overview
+- `remediation-plan.md` — priority fix plan (P0→P3) parsed từ results.json
+- `tech-debt.md` — accepted debt register (MEDIUM+LOW items)
+- `delta.md` — chỉ từ scan #002 trở đi
+
+**State files BẮT BUỘC update:**
+- `state/tracking.md` — APPEND row mới
+- `state/project-memory.md` — update nếu có decision mới
+- `scans/latest.txt` — overwrite với scan number hiện tại
 
 Output cuối cùng trình user = `summary.md` content (hiển thị trong chat) + tất cả files đã tạo trong `scans/{NNN}/`.
 
@@ -378,6 +397,25 @@ Mark finding as Fixed trong remediation log.
 
 ---
 
+## PHASE 6: VERIFY (Implicit — runs as part of Phase 5)
+
+Verify is NOT a separate phase — it's built into Phase 5, Step 5.3.
+After every fix → auto re-scan → report PASS/FAIL.
+
+No standalone execution needed unless user asks to verify a previous fix.
+
+---
+
+## PHASE 7: REPORT (On-demand — separate workflow)
+
+Report = compliance mapping. NOT auto-triggered by full pipeline.
+
+**Trigger**: User says "report", "báo cáo", "compliance", "CIS", "PCI"...
+**Workflow**: Load `checkov-aws-compliance.md` → generate report in `reports/compliance/{framework}.md`
+**Prerequisite**: ≥1 scan in tracking (needs results.json to map findings to frameworks)
+
+---
+
 ## Session Resumption
 
 Khi user quay lại (new session), AI PHẢI:
@@ -428,7 +466,8 @@ output:
   - cli
   - json
 
-output-file-path: .checkov-reports
+# NOTE: output-file-path NOT set here — agent controls this via --output-file-path flag
+# to ensure output goes to correct scans/{NNN}/ folder per scan
 ```
 
 ---

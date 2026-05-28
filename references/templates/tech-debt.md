@@ -5,55 +5,101 @@
 
 ---
 
+## Mục đích tài liệu
+
+Tech Debt Register ghi lại các security findings mà team **biết nhưng CHỌN CHƯA FIX ngay**.
+Đây KHÔNG phải danh sách lỗi — mà là **documented decision** trả lời:
+- Tại sao chấp nhận rủi ro này?
+- Có biện pháp bù đắp gì?
+- Khi nào sẽ xử lý?
+- Điều kiện nào buộc phải fix ngay?
+
+**Audience**: Security team, Auditor, Management, DevOps leads.
+
+---
+
 ## Executive Summary
 
 | Metric | Value |
 |--------|-------|
-| Total Findings | {N} |
+| Total Findings (from scan) | {N} |
 | Fixed (This Sprint) | {N} |
 | Accepted Tech Debt | {N} |
-| Target Resolution Date | {YYYY-QN} |
+| Deferred (with timeline) | {N} |
+| Permanent Exceptions | {N} |
+| Overall Risk Level | {LOW / MEDIUM / HIGH} |
 | Risk Owner | {team/person} |
 
 ### Risk Posture
 
-| Severity | Open | Accepted | Remediation Timeline |
-|----------|------|----------|---------------------|
-| 🔴 CRITICAL | 0 | 0 | Immediate — block deploy |
-| 🟠 HIGH | {N} | {N} | Sprint +1 |
-| 🟡 MEDIUM | {N} | {N} | Quarter +1 |
-| 🟢 LOW | {N} | {N} | Backlog |
+| Severity | Open (will fix) | Accepted Debt | Permanent Exception | Timeline |
+|----------|-----------------|---------------|---------------------|----------|
+| 🔴 CRITICAL | 0 | 0 | 0 | NEVER accept — block deploy |
+| 🟠 HIGH | {N} | {N} | {N} | Sprint +1 |
+| 🟡 MEDIUM | {N} | {N} | {N} | Quarter +1 |
+| 🟢 LOW | {N} | {N} | {N} | Backlog |
+
+### Decision Criteria — Khi nào finding vào Tech Debt?
+
+Finding vào tech-debt khi thỏa MỘT trong các điều kiện:
+1. Fix effort > business value hiện tại (cost/benefit không hợp lý)
+2. Môi trường dev/staging không cần same security posture như prod
+3. Dependency blocker — cần team/service khác thay đổi trước
+4. Architecture constraint — fix cần refactor lớn, phải schedule riêng
+5. False positive chưa đủ evidence để suppress vĩnh viễn
+
+**CRITICAL findings KHÔNG BAO GIỜ được accept vào tech debt** — phải fix hoặc escalate.
 
 ---
 
 ## Accepted Tech Debt Items
 
-### TD-001: {Short Title}
+### TD-001: {Short Title — mô tả ngắn vấn đề}
 
 | Field | Value |
 |-------|-------|
 | Check ID | CKV_AWS_{NNN} |
-| Severity | MEDIUM |
+| Severity | {MEDIUM / LOW} |
 | Resource | `aws_{resource_type}.{name}` |
 | File | `{path/to/file.tf}` |
 | Line | {line_number} |
-| Description | {Checkov description} |
+| Description | {Checkov check description} |
+| Environment | {dev / staging / prod / all} |
 | Accepted Date | {YYYY-MM-DD} |
 | Owner | {team/person} |
-| Target Fix Date | {YYYY-MM-DD} |
-| Review Date | {YYYY-MM-DD} |
+| Target Fix Date | {YYYY-MM-DD hoặc "Q3 2026"} |
+| Review Date | {YYYY-MM-DD — next quarterly review} |
+| Status | {Open / In Progress / Resolved / Permanent Exception} |
+
+**Risk Assessment:**
+- Impact nếu bị exploit: {LOW / MEDIUM / HIGH}
+- Likelihood: {LOW / MEDIUM / HIGH}
+- Blast radius: {mô tả — e.g., "chỉ ảnh hưởng build artifacts, no PII"} 
+- Data sensitivity: {None / Internal / Confidential / PII / PHI}
 
 **Business Justification:**
-{Why this is accepted as tech debt rather than fixed immediately}
+{Tại sao KHÔNG fix ngay — phải cụ thể, có data. Không được viết generic "will fix later"}
+
+Ví dụ tốt: "Bucket chỉ chứa temporary CI/CD artifacts với lifecycle 7 ngày. Versioning tăng storage cost ~40% mà data không cần recovery."
+Ví dụ xấu: "Low priority" hoặc "sẽ fix sau"
 
 **Compensating Controls:**
-- {Control 1 — e.g., WAF in front, monitoring alert configured}
+- {Control 1 — biện pháp giảm rủi ro thay thế}
 - {Control 2}
+- {Control 3}
 
-**Remediation Plan:**
+Ví dụ: WAF, bucket policy restrict access, lifecycle policy, monitoring alert, encryption at another layer, network isolation...
+
+**Acceptance Criteria (Trigger — khi nào PHẢI fix ngay):**
+- {Điều kiện 1 khiến debt này trở thành bắt buộc fix}
+- {Điều kiện 2}
+
+Ví dụ: "Nếu bucket chuyển sang chứa PII → fix immediately", "Nếu public access detected → fix within 4h"
+
+**Remediation Plan (khi đến target date):**
 - [ ] {Step 1}
 - [ ] {Step 2}
-- [ ] Verify fix with `checkov -f {file} --check CKV_AWS_{NNN}`
+- [ ] Verify: `checkov -f {file} --check CKV_AWS_{NNN}`
 
 ---
 
@@ -62,64 +108,119 @@
 | Field | Value |
 |-------|-------|
 | Check ID | CKV_AWS_{NNN} |
-| Severity | LOW |
+| Severity | {MEDIUM / LOW} |
 | Resource | `aws_{resource_type}.{name}` |
 | File | `{path/to/file.tf}` |
 | Line | {line_number} |
-| Description | {Checkov description} |
+| Description | {Checkov check description} |
+| Environment | {dev / staging / prod / all} |
 | Accepted Date | {YYYY-MM-DD} |
 | Owner | {team/person} |
 | Target Fix Date | {YYYY-MM-DD} |
 | Review Date | {YYYY-MM-DD} |
+| Status | {Open / In Progress / Resolved / Permanent Exception} |
+
+**Risk Assessment:**
+- Impact: {LOW / MEDIUM / HIGH}
+- Likelihood: {LOW / MEDIUM / HIGH}
+- Blast radius: {description}
+- Data sensitivity: {None / Internal / Confidential / PII / PHI}
 
 **Business Justification:**
-{Reason}
+{Reason — specific, measurable}
 
 **Compensating Controls:**
 - {Control}
 
+**Acceptance Criteria (Trigger):**
+- {Condition that forces immediate fix}
+
 **Remediation Plan:**
 - [ ] {Step}
+- [ ] Verify: `checkov -f {file} --check CKV_AWS_{NNN}`
 
 ---
 
 ## Suppressed Checks (Permanent Exceptions)
 
-Items below are **permanently accepted** with security team approval.
+Items below are **permanently accepted** — will NOT be fixed. Requires security team sign-off.
 
-| # | Check ID | Resource | File | Line | Justification | Approved By | Date |
-|---|----------|----------|------|------|---------------|-------------|------|
-| 1 | CKV_AWS_{NNN} | `{resource}` | `{path/file.tf}` | {N} | {reason} | {approver} | {date} |
-| 2 | CKV_AWS_{NNN} | `{resource}` | `{path/file.tf}` | {N} | {reason} | {approver} | {date} |
+| # | Check ID | Severity | Resource | File | Line | Justification | Compensating Control | Approved By | Date |
+|---|----------|----------|----------|------|------|---------------|---------------------|-------------|------|
+| 1 | CKV_AWS_{NNN} | {sev} | `{resource}` | `{path/file.tf}` | {N} | {reason} | {control} | {approver} | {date} |
+| 2 | CKV_AWS_{NNN} | {sev} | `{resource}` | `{path/file.tf}` | {N} | {reason} | {control} | {approver} | {date} |
+
+### Criteria cho Permanent Exception:
+- False positive đã xác nhận (Checkov misdetect)
+- Resource có design intent khác với check expectation (e.g., public-facing bucket by design)
+- Compensating control tương đương hoặc mạnh hơn check requirement
+- **PHẢI có approval từ security team lead hoặc CISO**
 
 ---
 
 ## Quarterly Review
 
-### Review Criteria
-- [ ] All CRITICAL/HIGH items resolved or escalated
-- [ ] MEDIUM items progressing toward target date
-- [ ] Compensating controls still effective
-- [ ] No new findings in same category (regression)
-- [ ] Suppression justifications still valid
+### Review Checklist
+- [ ] All CRITICAL/HIGH items resolved hoặc escalated (KHÔNG còn trong debt)
+- [ ] MEDIUM items đang progress toward target date
+- [ ] Compensating controls vẫn effective (not removed/changed)
+- [ ] Acceptance criteria chưa bị trigger
+- [ ] No regression — không có new findings cùng category với items đã fix
+- [ ] Suppression justifications vẫn valid (context chưa thay đổi)
+- [ ] Owner vẫn đúng (team/person chưa rời)
 
 ### Review History
 
-| Date | Reviewer | Outcome | Notes |
-|------|----------|---------|-------|
-| {YYYY-MM-DD} | {name} | {Approved/Escalated} | {notes} |
+| Date | Reviewer | Items Reviewed | Outcome | Escalated | Notes |
+|------|----------|----------------|---------|-----------|-------|
+| {YYYY-MM-DD} | {name} | {N} items | {All OK / Escalated / Resolved N items} | {N or 0} | {notes} |
 
 ---
 
-## Appendix: Severity Definitions
+## Metrics & Trends
 
-| Severity | SLA | Criteria |
-|----------|-----|----------|
-| CRITICAL | Fix before deploy | Public exposure, unencrypted sensitive data, open to internet |
-| HIGH | Fix within 1 sprint | Missing encryption, overly permissive IAM, weak auth |
-| MEDIUM | Fix within 1 quarter | Missing logging, no versioning, no backup config |
-| LOW | Backlog | Best practice recommendations, naming conventions |
+| Quarter | Total Debt | New Added | Resolved | Escalated | Avg Age (days) |
+|---------|-----------|-----------|----------|-----------|----------------|
+| {YYYY-Q1} | {N} | {N} | {N} | {N} | {N} |
+| {YYYY-Q2} | {N} | {N} | {N} | {N} | {N} |
+
+**Health Indicators:**
+- Debt growing faster than resolving? → Team capacity issue
+- Avg age > 90 days? → Review target dates, escalate
+- Escalated > 0? → Need management attention
 
 ---
 
-*Template version: 1.0 | Power: iac-checkov-aws v1.0.0*
+## Appendix: Severity Definitions & SLA
+
+| Severity | SLA | Can be Tech Debt? | Criteria |
+|----------|-----|-------------------|----------|
+| CRITICAL | Fix before deploy | ❌ NEVER | Public exposure, unencrypted sensitive data, open to internet |
+| HIGH | Fix within 1 sprint | ⚠️ Exception only | Missing encryption, overly permissive IAM, weak auth |
+| MEDIUM | Fix within 1 quarter | ✅ Yes | Missing logging, no versioning, no backup config |
+| LOW | Backlog | ✅ Yes | Best practice recommendations, naming conventions |
+
+### HIGH vào Tech Debt — chỉ khi:
+- Có compensating control mạnh (equivalent protection)
+- Fix blocked by dependency (team khác chưa ready)
+- Scheduled trong sprint kế tiếp (≤2 weeks)
+- Approved bởi security team lead
+
+---
+
+## Agent Rules (cho AI khi generate file này)
+
+1. **Parse results.json** → lọc MEDIUM + LOW findings → tạo TD entries
+2. **HIGH findings** chỉ vào tech-debt khi user EXPLICITLY approve (hỏi trước)
+3. **CRITICAL** KHÔNG BAO GIỜ vào tech-debt — luôn nằm trong remediation-plan P0
+4. **Business Justification** KHÔNG ĐƯỢC để generic ("low priority") — phải context-specific
+5. **Compensating Controls** PHẢI suggest ít nhất 1 control hợp lý per item
+6. **Acceptance Criteria** PHẢI có ít nhất 1 trigger condition per item
+7. **Risk Assessment** PHẢI fill đầy đủ 4 dimensions (Impact, Likelihood, Blast radius, Data sensitivity)
+8. **Nếu user chưa provide justification** → agent suggest based on resource type + environment, mark "(suggested — confirm with team)"
+9. **Review Date** = Accepted Date + 90 days (quarterly review cycle)
+10. **Target Fix Date** mặc định = end of next quarter, trừ khi user specify khác
+
+---
+
+*Template version: 2.0 | Power: iac-checkov-aws v1.0.0*

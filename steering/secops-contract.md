@@ -19,7 +19,7 @@ plan → scan → analyze → track → remediate → verify → report
 
 | Phase | Command | Output |
 |---|---|---|
-| 1. Plan | `plan` | scan-plan.md |
+| 1. Plan | `plan` | scans/{NNN}/plan.md |
 | 2. Scan | `scan` | scans/{NNN}/results.json |
 | 3. Analyze | `analyze` | Summary tables + severity breakdown |
 | 4. Track | `track` | tracking.md (append scan entry) |
@@ -44,10 +44,12 @@ scan_plan: .checkov-reports/scans/{NNN}/plan.md
 scan_delta: .checkov-reports/scans/{NNN}/delta.md
 scan_latest: .checkov-reports/scans/latest.txt
 
-# Reports (on-demand)
+# Per-scan artifacts (snapshot per scan)
+scan_remediation_plan: .checkov-reports/scans/{NNN}/remediation-plan.md
+scan_tech_debt: .checkov-reports/scans/{NNN}/tech-debt.md
+
+# Reports (on-demand, aggregated cross-scan)
 reports_dir: .checkov-reports/reports/
-remediation_plan: .checkov-reports/reports/remediation-plan.md
-tech_debt: .checkov-reports/reports/tech-debt.md
 compliance_report: .checkov-reports/reports/compliance/{framework}.md
 
 # Config
@@ -68,7 +70,7 @@ baseline: .checkov.baseline
 
 | Command | Requires | Outputs |
 |---|---|---|
-| plan | IaC files detected | scan-plan.md |
+| plan | IaC files detected | scans/{NNN}/plan.md |
 | scan | plan approved + checkov installed | scans/{NNN}/results.json |
 | analyze | scan results exist | Summary (display only) |
 | track | scan results exist | tracking.md (append) |
@@ -156,7 +158,7 @@ File `state/project-memory.md` lưu trữ:
 - Decisions log (mỗi quyết định quan trọng)
 - Session history (last 5 actions)
 
-**Template**: Tạo từ `references/project-memory-template.md` khi lần đầu scan.
+**Template**: Tạo từ `references/templates/project-memory.md` khi lần đầu scan.
 
 Cập nhật project-memory sau:
 - User approve suppression

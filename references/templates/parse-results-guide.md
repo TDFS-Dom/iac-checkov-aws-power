@@ -115,13 +115,30 @@ unchanged = curr_ids & prev_ids         # In both
 
 ```python
 # Tech debt = MEDIUM + LOW findings (accepted, not fixed immediately)
+# HIGH findings CHỈ vào tech-debt khi user explicitly approve
 tech_debt_items = [f for f in failed if f.get('severity') in ('MEDIUM', 'LOW')]
 
 # Each item becomes TD-NNN entry with:
 # - Check ID, Severity, Resource, File, Line from JSON
-# - Business Justification = agent asks user OR default: "Deferred to backlog"
-# - Compensating Controls = agent suggests based on check type
-# - Target Fix Date = current quarter + 1
+# - Environment = agent asks user OR infer from file path (e.g., /dev/ → dev)
+# - Risk Assessment:
+#   - Impact = based on severity (MEDIUM→MEDIUM, LOW→LOW)
+#   - Likelihood = based on resource exposure (public-facing→HIGH, internal→LOW)
+#   - Blast radius = based on resource type (IAM→wide, single bucket→narrow)
+#   - Data sensitivity = infer from resource name/type or ask user
+# - Business Justification = agent asks user OR suggest based on context
+#   KHÔNG ĐƯỢC viết generic "Low priority" — phải context-specific
+# - Compensating Controls = agent suggests based on check type:
+#   - Missing encryption → "Data not sensitive" or "Network isolation"
+#   - Missing logging → "CloudTrail enabled at account level"
+#   - Missing versioning → "Lifecycle policy, data is ephemeral"
+#   - Open SG (MEDIUM) → "WAF/NLB in front, monitoring alert"
+# - Acceptance Criteria = trigger condition khi nào PHẢI fix:
+#   - "If resource stores PII → fix immediately"
+#   - "If environment promoted to prod → fix before promotion"
+#   - "If public access detected → fix within 4h"
+# - Target Fix Date = end of next quarter
+# - Review Date = accepted date + 90 days
 ```
 
 ## QUAN TRỌNG — Agent Rules
