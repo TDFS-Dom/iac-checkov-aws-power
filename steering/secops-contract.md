@@ -132,6 +132,9 @@ baseline: .checkov.baseline
 | CKV_AWS_144 | S3 cross-region replication | HIGH | **MEDIUM** | DR gap, not security breach |
 | CKV2_AWS_19 | EIP not attached | HIGH/MEDIUM | **MEDIUM** | Cost waste, not security |
 | CKV_AWS_272 | Lambda code signing | HIGH | **MEDIUM** | Defense-in-depth, not immediate risk |
+| CKV2_AWS_62 | S3 event notifications | HIGH | **MEDIUM** | Operational hygiene, not security breach |
+| CKV2_AWS_61 | S3 lifecycle configuration | HIGH | **MEDIUM** | Operational hygiene, not security breach |
+| CKV2_AWS_64 | KMS key policy not defined | MEDIUM | **HIGH** | Key policy = access control for encryption keys |
 
 **Pattern rule**: Bất kỳ check nào nói "encrypted by KMS using CMK" hoặc "encrypted using customer managed Key" = **LOW** (trừ CloudTrail CMK = HIGH vì tamper protection).
 
