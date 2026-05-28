@@ -86,6 +86,29 @@ date: "{YYYY-MM-DD}"
 - Loại bỏ agent-only sections ("Agent Rules", "Template version" footers)
 - Loại bỏ internal paths (absolute paths → relative hoặc redact)
 
+**CRITICAL — Enrichment Rule:**
+
+Khi assemble Section 3 (Findings Detail) từ `remediation-plan.md`:
+- Nếu remediation-plan.md chỉ có GROUP HEADER (ví dụ: "CKV_AWS_111 | 8 | description") mà KHÔNG liệt kê per-resource detail → agent PHẢI parse `results.json` trực tiếp và expand:
+  - Mỗi finding = 1 row hoặc 1 item trong "Affected Resources" list
+  - Extract: `resource`, `file_path`, `file_line_range[0]`, `caller_file_path` (nếu có)
+  - Format: numbered list dưới mỗi group header
+
+```markdown
+### CKV_AWS_111 — IAM write access without constraints (8 findings)
+
+**Affected Resources:**
+1. `aws_iam_policy_document.kms_policy` — `_modules/kms/main.tf:23` (caller: `information-security/kms/main.tf:5`)
+2. `aws_iam_policy_document.kms_policy` — `_modules/kms/main.tf:23` (caller: `log-archive/kms/main.tf:3`)
+3. `aws_iam_policy_document.kms_policy` — `_modules/kms/main.tf:23` (caller: `network/kms/main.tf:7`)
+...
+
+**Remediation:** Add resource-level conditions to KMS policies. Scope to specific key ARNs.
+```
+
+- KHÔNG BAO GIỜ xuất docx mà Section 3 chỉ có grouped summary tables không có chi tiết từng resource
+- Nếu results.json không tồn tại → báo lỗi, KHÔNG xuất docx với data thiếu
+
 ### Step 2: Convert to .docx (Pandoc)
 
 ```bash
