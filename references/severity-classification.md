@@ -93,7 +93,6 @@ Agent PHẢI check bảng này TRƯỚC khi dùng ma trận. Nếu Check ID có 
 | CKV_AWS_41 | Hardcoded credentials in provider | — | — | TRIVIAL | CATASTROPHIC |
 | CKV_AWS_46 | Hardcoded secret in Lambda env | — | — | TRIVIAL | SIGNIFICANT |
 | CKV_AWS_17 | RDS publicly accessible | RDS.2 | CRITICAL | TRIVIAL | SIGNIFICANT |
-| CKV_AWS_9 | Root account without MFA | IAM.6 | CRITICAL | LOW | CATASTROPHIC |
 
 > *CKV_AWS_54/56 map tới S3.1 (account-level, MEDIUM trong SH) nhưng IaC context = bucket-level exposure → chúng ta classify CRITICAL vì nếu disable = bucket exposed trực tiếp. Đây là justified deviation từ SH.
 
@@ -177,7 +176,7 @@ Finding là CRITICAL khi thoả **BẤT KỲ** điều kiện sau:
 | 3 | Security Group cho phép **0.0.0.0/0 ingress tới port sensitive** (22/SSH, 3389/RDP, DB ports 3306/5432/1433/27017) | CKV_AWS_24, CKV_AWS_25 |
 | 4 | Credentials/secrets **hardcoded** trong code | CKV_AWS_41, CKV_AWS_46 |
 | 5 | RDS/Database **publicly accessible = true** | CKV_AWS_17 |
-| 6 | Root account không có MFA | CKV_AWS_9 |
+| 6 | IAM **root user has access keys** | CKV_AWS_348 |
 
 **Keyword pattern**: Nếu check description chứa "public access", "admin", "AdministratorAccess", "hardcoded credentials", "publicly accessible" → likely CRITICAL.
 
