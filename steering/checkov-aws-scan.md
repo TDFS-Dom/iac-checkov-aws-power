@@ -201,20 +201,38 @@ done
 
 ## PHASE 3: ANALYZE
 
-### Step 3.1: Parse Results
+### Step 3.1: Classify Findings (SCRIPT-BASED — agent KHÔNG tự classify)
 
-Đọc `.checkov-reports/scans/{NNN}/results.json` và extract:
+Chạy script classify trước khi parse kết quả:
+
+```bash
+python3 {power_dir}/scripts/classify_findings.py .checkov-reports/scans/$NEXT/results.json \
+  > .checkov-reports/scans/$NEXT/classified.json
+```
+
+Output `classified.json` chứa findings đã phân loại severity (từ `severity-map.md`). Agent dùng file này cho TẤT CẢ output tiếp theo — **KHÔNG được tự classify lại**.
+
+Nếu script fail (file not found, python error) → agent báo lỗi, KHÔNG fallback sang tự classify.
+
+### Step 3.2: Parse Classified Results
+
+### Step 3.2: Parse Classified Results
+
+Đọc `.checkov-reports/scans/{NNN}/classified.json` (output từ script):
 
 ```bash
 # Summary counts
 python3 -c "
 import json
-with open('.checkov-reports/scans/$NEXT/results.json') as f:
+with open('.checkov-reports/scans/$NEXT/classified.json') as f:
     data = json.load(f)
-s = data.get('summary', {})
-print(f'passed={s.get(\"passed\",0)}')
-print(f'failed={s.get(\"failed\",0)}')
-print(f'skipped={s.get(\"skipped\",0)}')
+s = data['scan_summary']
+print(f'passed={s[\"passed\"]}')
+print(f'failed={s[\"failed\"]}')
+print(f'skipped={s[\"skipped\"]}')
+sc = data['severity_counts']
+for k in ['CRITICAL','HIGH','MEDIUM','LOW']:
+    print(f'{k}: {sc[k]}')
 "
 ```
 
