@@ -6,16 +6,68 @@
 
 ---
 
+## Nguồn tham chiếu
+
+Bộ tiêu chí dưới đây được xây dựng dựa trên:
+- [AWS Security Hub Severity Labels](https://docs.aws.amazon.com/securityhub/1.0/APIReference/API_Severity.html) — CRITICAL/HIGH/MEDIUM/LOW definitions
+- [AWS Prescriptive Guidance — Vulnerability Management](https://docs.aws.amazon.com/prescriptive-guidance/latest/vulnerability-management/assess-and-prioritize-security-findings.html) — prioritization factors
+- [Prisma Cloud Policy Severity](https://knowledgebase.paloaltonetworks.com/KCSArticleDetail?id=kA14u000000scJiCAI) — IaC-specific severity model
+- [NIST CCSS (Common Configuration Scoring System)](https://csrc.nist.gov/publications/nistir/ir7502/nistir-7502_CCSS.pdf) — configuration vulnerability scoring
+
+Content was rephrased for compliance with licensing restrictions.
+
+---
+
 ## Nguyên tắc phân loại
 
-Classification dựa trên **IMPACT nếu bị exploit**, không phải effort-to-fix.
+Dựa trên AWS Security Hub severity model, classification đánh giá 2 yếu tố:
 
-| Severity | Định nghĩa | SLA |
-|----------|------------|-----|
-| **CRITICAL** | Exposure trực tiếp ra internet HOẶC privilege escalation không giới hạn. Attacker có thể exploit NGAY mà không cần thêm điều kiện. | 24h — block deploy |
-| **HIGH** | Over-permissive access, thiếu encryption cho sensitive data, hoặc thiếu visibility (logging/monitoring) cho critical resources. Cần thêm 1 điều kiện để exploit. | 1 sprint (2 weeks) |
-| **MEDIUM** | Best practices bị thiếu — defense-in-depth layers, operational hygiene. Cần chain nhiều điều kiện để gây impact. | 1 quarter |
-| **LOW** | Nice-to-have hardening. Impact thấp hoặc chỉ ảnh hưởng non-sensitive resources. | Backlog |
+1. **Difficulty to exploit** — mức độ phức tạp để attacker lợi dụng misconfiguration
+2. **Likelihood of compromise** — khả năng misconfiguration dẫn tới breach/disruption
+
+| Severity | Định nghĩa (AWS Security Hub aligned) | SLA |
+|----------|---------------------------------------|-----|
+| **CRITICAL** | Issue phải được remediate **ngay lập tức** để tránh escalation. Attacker có thể exploit trực tiếp, không cần điều kiện phụ. Tương đương normalized score 90–100. | 24h — block deploy |
+| **HIGH** | Issue phải được address **ưu tiên cao**. Resource có thể bị compromised và sử dụng cho mục đích unauthorized. Tương đương normalized score 70–89. | 1 sprint (2 weeks) |
+| **MEDIUM** | Issue phải được address nhưng **không khẩn cấp**. Cần chain nhiều điều kiện hoặc sophistication cao hơn để exploit. Tương đương normalized score 40–69. | 1 quarter |
+| **LOW** | Issue **không yêu cầu action riêng**. Là hardening recommendation, defense-in-depth layer. Tương đương normalized score 1–39. | Backlog |
+
+---
+
+## Bộ tiêu chí phân loại (Scoring Matrix)
+
+### Ma trận 2 chiều: Exploitability × Impact
+
+Agent classify bằng cách đánh giá finding trên 2 trục:
+
+**Trục 1: Exploitability (Difficulty to Exploit)**
+
+| Level | Mô tả | Ví dụ |
+|-------|--------|-------|
+| **TRIVIAL** | Không cần authentication, không cần network position đặc biệt. Public internet access đủ. | S3 public bucket, SG open 0.0.0.0/0 tới SSH |
+| **LOW** | Cần 1 điều kiện đơn giản (có AWS credentials, hoặc access vào internal network) | IAM wildcard policy (cần credentials), unencrypted EBS (cần EC2 access) |
+| **MODERATE** | Cần chain 2+ điều kiện hoặc cần privilege level nhất định | Missing DLQ (cần trigger failure), missing VPC flow logs (cần other exploit first) |
+| **HIGH** | Cần advanced attack path, multiple layers, hoặc insider access | Missing CMK cho SSM parameter (default encryption vẫn có), missing detailed monitoring |
+
+**Trục 2: Impact (nếu exploit thành công)**
+
+| Level | Mô tả | Ví dụ |
+|-------|--------|-------|
+| **CATASTROPHIC** | Full account takeover, toàn bộ data exposed, total loss of control | AdministratorAccess policy, root MFA disabled |
+| **SIGNIFICANT** | Data breach cho 1 service, credential theft, hoặc lateral movement | Unencrypted RDS, open SG tới DB port, IAM privilege escalation |
+| **MODERATE** | Partial visibility loss, 1 resource compromised, operational disruption | Missing flow logs, missing access logging, deletion without protection |
+| **MINIMAL** | No direct security impact. Operational improvement, compliance checkbox | Missing tags, missing CMK (default encryption exists), missing monitoring |
+
+### Severity = f(Exploitability, Impact)
+
+| | Impact: CATASTROPHIC | Impact: SIGNIFICANT | Impact: MODERATE | Impact: MINIMAL |
+|---|---|---|---|---|
+| **Exploit: TRIVIAL** | 🔴 CRITICAL | 🔴 CRITICAL | 🟠 HIGH | 🟡 MEDIUM |
+| **Exploit: LOW** | 🔴 CRITICAL | 🟠 HIGH | 🟠 HIGH | 🟡 MEDIUM |
+| **Exploit: MODERATE** | 🟠 HIGH | 🟠 HIGH | 🟡 MEDIUM | 🟢 LOW |
+| **Exploit: HIGH** | 🟠 HIGH | 🟡 MEDIUM | 🟢 LOW | 🟢 LOW |
+
+**Cách dùng**: Cho mỗi finding, agent xác định Exploitability level + Impact level → tra ma trận → ra Severity.
 
 ---
 
@@ -174,5 +226,6 @@ Nếu một finding không match bất kỳ tiêu chí cụ thể nào ở trên
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.0 | 2026-05-28 | Add scoring matrix (Exploitability × Impact), align with AWS Security Hub + Prisma Cloud + NIST CCSS, add source references |
 | 1.0 | 2026-05-28 | Initial classification with 4 severity levels, 50+ check mappings |
 
