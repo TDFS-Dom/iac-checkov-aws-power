@@ -66,16 +66,19 @@ Cho mỗi skip found:
 | ❌ WEAK | Vague or no justification | "Not needed" / "Too expensive" / empty |
 | 🚫 MISSING | No text after `:` | `# checkov:skip=CKV_AWS_18` |
 
-#### Tiêu chí 2: Severity vs Justification Strength
+#### Tiêu chí 2: Justification Completeness
 
-| Check Severity | Minimum Justification Required |
-|----------------|-------------------------------|
-| CRITICAL | STRONG + ticket + approval + compensating controls |
-| HIGH | STRONG + ticket OR compensating controls |
-| MEDIUM | ACCEPTABLE hoặc tốt hơn |
-| LOW | Any non-empty justification |
+Đánh giá skip dựa trên **chất lượng justification**, KHÔNG dựa trên severity của check.
 
-**Violation**: Suppress CRITICAL/HIGH check với justification WEAK/MISSING → flag immediately.
+| Có justification text? | Có compensating controls? | Verdict |
+|------------------------|--------------------------|---------|
+| ✅ Yes (≥10 chars, business reason) | Yes | ✅ VALID |
+| ✅ Yes (≥10 chars, business reason) | No | ✅ VALID |
+| ⚠️ Yes nhưng vague ("not needed", "too expensive") | — | ⚠️ WEAK — suggest improve text |
+| 🚫 No / empty | — | ❌ INVALID — phải thêm justification |
+
+**Nguyên tắc: Nếu đã có `#checkov:skip=` với justification rõ ràng → accept tại mọi severity.**
+Agent KHÔNG được block hay reject skip dựa trên severity level. Severity chỉ dùng để ưu tiên fix order, KHÔNG dùng để gate suppress decisions.
 
 #### Tiêu chí 3: Known False Positive Patterns
 
@@ -99,7 +102,7 @@ Khi match → báo "✅ Known false positive — skip valid" NHƯNG vẫn kiểm
 | 🟢 ACTIVE | No expiry set OR expiry > today |
 | 🟡 EXPIRING SOON | Expiry within 30 days |
 | 🔴 EXPIRED | Expiry date < today |
-| ⚪ NO EXPIRY | Permanent skip — flag nếu severity >= HIGH |
+| ⚪ NO EXPIRY | Permanent skip — acceptable nếu justification valid |
 
 ---
 
@@ -296,25 +299,20 @@ resource "aws_example" "this" {
 
 ### Validation Before Apply
 
-| Check Severity | Requirements |
-|----------------|-------------|
-| CRITICAL | ❌ KHÔNG suppress — phải fix. Ngoại lệ: user explicitly override với "force suppress" |
-| HIGH | Justification ≥ STRONG + prompt for ticket + compensating controls |
-| MEDIUM | Justification ≥ ACCEPTABLE |
-| LOW | Any non-empty justification |
+| Requirement | Rule |
+|-------------|------|
+| Justification text | BẮT BUỘC — minimum 10 chars, phải là business reason |
+| Ticket reference | KHUYẾN NGHỊ nhưng không bắt buộc |
+| Compensating controls | KHUYẾN NGHỊ cho HIGH/CRITICAL nhưng không bắt buộc |
+| Expiration date | KHUYẾN NGHỊ cho temporary exceptions |
 
-Nếu user cố suppress CRITICAL check:
+**Nguyên tắc**: Nếu user quyết định skip bất kỳ check nào (kể cả CRITICAL) và có justification rõ ràng → apply suppress. Agent chỉ CẢNH BÁO (informational), KHÔNG BLOCK.
+
+Nếu user suppress check mà không có justification text:
 ```
-⚠️ CKV_AWS_274 (AdministratorAccess policy) là CRITICAL finding.
-Suppress CRITICAL checks KHÔNG được khuyến nghị — nên fix thay vì skip.
-
-Nếu THỰC SỰ cần suppress, cung cấp:
-1. Business justification (tại sao không thể fix?)
-2. Compensating controls (giảm thiểu risk thế nào?)
-3. Ticket reference (ai approve?)
-4. Expiration date (khi nào sẽ fix?)
-
-Tiếp tục force suppress? [y/N]
+⚠️ Suppress CKV_AWS_274 cần có justification text.
+Vui lòng cung cấp lý do (tối thiểu 10 ký tự) để ghi vào inline comment.
+Ví dụ: "Execution role cần broad permissions cho CI/CD pipeline deployment"
 ```
 
 ---
@@ -337,8 +335,6 @@ Potential issues: expired dates, stale justifications, deprecated checks.
 |---------|---------|--------|
 | `# checkov:skip=*` | Blanket suppress ALL checks | ❌ Reject — never valid |
 | Skip without colon text | No justification | ❌ Flag as MISSING |
-| "Too expensive" as justification for prod | Cost ≠ security justification | ❌ Flag as WEAK |
-| "Not needed" without explanation | Vague, no business context | ❌ Flag as WEAK |
-| Skip CRITICAL in production path | Highest risk | ❌ Flag — require force + full documentation |
+| "Not needed" without explanation | Vague, no business context | ⚠️ Flag as WEAK — suggest improve |
 | Same skip copy-pasted 10+ times | Probably should be in .checkov.yaml skip-check | ⚠️ Suggest centralized suppression |
 | Skip with expired date still active | Maintenance debt | 🔴 Flag as OUTDATED |
