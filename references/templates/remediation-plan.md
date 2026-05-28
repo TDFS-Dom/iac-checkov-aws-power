@@ -165,9 +165,9 @@ GHI NOTE ở đầu remediation-plan: "Severity lookup from `references/aws-chec
 
 ### CRITICAL — Severity UNKNOWN Handling:
 - Checkov OSS (free) KHÔNG có severity metadata cho hầu hết checks
-- Agent PHẢI classify theo bảng "Severity Classification Rules" ở trên
-- GHI NOTE ở đầu file: "Severity classified by check type (Checkov OSS does not provide severity metadata)"
-- KHÔNG để cả 85 findings trong "UNKNOWN" — PHẢI phân loại
+- Agent PHẢI lookup `references/aws-checks-full-list.md` (cột Severity) cho mỗi Check ID. Nếu check mới → dùng `references/severity-classification.md` Scoring Matrix.
+- GHI NOTE ở đầu file: "Severity lookup from `references/aws-checks-full-list.md` (Checkov OSS does not provide severity metadata)"
+- KHÔNG để cả findings trong "UNKNOWN" — PHẢI phân loại
 
 ---
 
