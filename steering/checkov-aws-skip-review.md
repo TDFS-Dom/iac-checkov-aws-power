@@ -52,6 +52,7 @@ Cho mỗi skip found:
 1. Check nếu `check_id` có trong latest scan `results.json` → `skipped_checks[]`
 2. Check nếu resource vẫn tồn tại (file + line still valid)
 3. Check nếu check_id vẫn còn relevant (Checkov version compatibility)
+4. Tra severity của check_id từ `references/severity-classification.md` (Pre-computed table) → dùng cho output report
 
 ### Step 4: Evaluate — Logic Review
 
