@@ -1,6 +1,6 @@
 # IaC Checkov AWS — Kiro Power
 
-Scan và bảo mật AWS Infrastructure as Code (Terraform, CloudFormation) bằng [Checkov](https://www.checkov.io/). Chạy trực tiếp trên máy local với plan, tracking, memory giữa sessions, và remediation tự động.
+Scan và bảo mật AWS Infrastructure as Code (Terraform, CloudFormation) bằng [Checkov](https://www.checkov.io/). Chạy trực tiếp trên máy local, tự động tạo report đầy đủ sau mỗi scan.
 
 ## Cài đặt
 
@@ -20,286 +20,123 @@ Mở Kiro → Powers panel → Install from repository:
 https://github.com/TDFS-Dom/iac-checkov-aws-power
 ```
 
-Hoặc clone về local:
-
-```bash
-git clone https://github.com/TDFS-Dom/iac-checkov-aws-power.git
-```
-
-Rồi cài từ local folder trong Kiro Powers panel.
-
 ## Sử dụng
 
-### Scan toàn bộ Landing Zone
-
-Power được thiết kế cho **multi-folder Landing Zone** (level0 → level4, modules, policies...). Mở chat trong Kiro và nói:
+Mở chat trong Kiro, nói:
 
 ```
-Scan toàn bộ Landing Zone
+Scan toàn bộ dự án
 ```
 
-Power sẽ scan **recursive** toàn bộ workspace — bao gồm tất cả subdirectories:
+Power tự động chạy full pipeline — không cần thêm lệnh nào:
 
 ```
-your-landing-zone/
-├── _modules/               ← scan
-├── level0-foundation/      ← scan
-├── level1-security/        ← scan
-├── level2-connectivity/    ← scan
-├── level3-account-vending/ ← scan
-├── level4-operations/      ← scan
-├── management/             ← scan
-├── network/                ← scan
-├── policies/               ← scan
-├── svc-nonprd/             ← scan
-├── svc-prod/               ← scan
-├── user-management/        ← scan
-└── ...                     ← scan hết
+Plan → Scan (456 AWS checks) → Analyze → Report đầy đủ
 ```
 
-Command thực thi:
-```bash
-checkov -d . --framework terraform --compact -o json \
-  --output-file-path .checkov-reports \
-  --download-external-modules true
-```
+### Các lệnh khác
 
-> `-d .` scan recursive từ root — KHÔNG cần chỉ từng folder.
+| Bạn nói | Power làm |
+|---------|-----------|
+| Scan toàn bộ dự án | Full pipeline + report |
+| Fix CKV_AWS_93 | Sửa file .tf + verify |
+| Tiếp tục | Xem state → recommend next |
+| Report CIS AWS | Compliance report |
+| Tạo baseline | Lock current state |
 
-### Scan từng level riêng (optional)
+## Output — Mỗi scan tạo gì?
 
-```
-Scan chỉ level1-security
-```
-
-```bash
-checkov -d ./level1-security --framework terraform --compact -o json
-```
-
-### Tiếp tục sau session trước
+Mỗi scan tạo 1 folder hoàn chỉnh (self-contained snapshot):
 
 ```
-Tiếp tục — bước tiếp theo là gì?
-```
-
-### Fix finding cụ thể
-
-```
-Fix CKV_AWS_93 trong level0-foundation/s3.tf
-```
-
-### Xem compliance report
-
-```
-Report compliance CIS AWS
-```
-
-### Tạo baseline
-
-```
-Tạo baseline cho infrastructure hiện tại
+.checkov-reports/
+├── state/
+│   ├── tracking.md                # Timeline tất cả scans
+│   └── project-memory.md          # Decisions, suppressions
+├── scans/
+│   ├── 001/
+│   │   ├── plan.md                # Scan plan đã approve
+│   │   ├── metadata.md            # Context (date, version, scope)
+│   │   ├── results.json           # Raw Checkov output
+│   │   ├── summary.md            # Findings overview
+│   │   ├── remediation-plan.md   # Priority fix plan (P0→P3)
+│   │   └── tech-debt.md          # Accepted debt register
+│   ├── 002/
+│   │   ├── ... (same)
+│   │   └── delta.md              # Changes vs scan trước
+│   └── latest.txt                 # "002"
+└── reports/
+    └── compliance/
+        └── cis-aws.md
 ```
 
 ## Workflow
 
-### Execution Flow
-
 ```mermaid
 flowchart TD
-    START([User Request]) --> ROUTE{Routing}
-    
-    ROUTE -->|"scan / quét"| PLAN[📋 Plan]
-    ROUTE -->|"tiếp tục"| STATUS[📊 Status Check]
-    ROUTE -->|"fix CKV_*"| FIX[🔧 Fix]
-    ROUTE -->|"report"| REPORT[📄 Report]
-    
-    PLAN -->|User Approve| SCAN[🔍 Scan]
-    SCAN --> ANALYZE[📊 Analyze]
-    ANALYZE --> TRACK[💾 Track]
-    
-    TRACK --> DECIDE{User Decision}
-    DECIDE -->|"fix now"| FIX
-    DECIDE -->|"plan fix"| REMPLAN[📝 Remediation Plan]
-    DECIDE -->|"accept debt"| TECHDEBT[📋 Tech Debt Register]
-    DECIDE -->|"baseline"| BASELINE[🔒 Baseline Lock]
-    
-    FIX --> VERIFY[✅ Verify]
-    VERIFY -->|PASS| TRACK
-    VERIFY -->|FAIL| FIX
-    
-    STATUS -->|"pending items"| DECIDE
-    STATUS -->|"all clean"| DONE([✅ Done])
-```
+    START([User: Scan toàn bộ dự án]) --> PLAN[📋 Plan — detect files, approve]
+    PLAN --> SCAN[🔍 Scan — checkov full 456 checks]
+    SCAN --> ANALYZE[📊 Analyze — parse results.json]
+    ANALYZE --> OUTPUT[📁 Generate ALL files]
+    OUTPUT --> PRESENT[📋 Show summary to user]
 
-### Session Continuity
+    OUTPUT --> |tạo| SUMMARY[summary.md]
+    OUTPUT --> |tạo| REMPLAN[remediation-plan.md]
+    OUTPUT --> |tạo| TECHDEBT[tech-debt.md]
+    OUTPUT --> |tạo| META[metadata.md]
+    OUTPUT --> |update| TRACKING[state/tracking.md]
+```
 
 ```mermaid
 flowchart LR
-    subgraph "Session Start"
-        A[Read project-memory.md] --> B[Read tracking.md]
-        B --> C[Recommend next action]
+    subgraph "Session 1"
+        A[Scan] --> B[Report]
     end
-    
-    subgraph "During Session"
-        D[Execute commands] --> E[Update tracking]
-        E --> F[Update memory if decision made]
+    subgraph "Session 2"
+        C[Read state/] --> D[Show status] --> E[Fix or re-scan]
     end
-    
-    subgraph "Session End"
-        G[All state persisted in files]
-    end
-    
-    C --> D
-    F --> G
+    B --> C
 ```
 
-### Data Flow — What Goes Where
+## remediation-plan.md — Chi tiết
 
-```mermaid
-flowchart TD
-    SCAN_CMD[checkov -d .] --> RAW[results_json.json]
-    
-    RAW --> ANALYZE_STEP[Analyze]
-    ANALYZE_STEP --> TRACKING[tracking.md<br/>Facts: counts, delta]
-    ANALYZE_STEP --> SUMMARY[Summary Display<br/>to User]
-    
-    SUMMARY --> USER_DECIDE{User Decision}
-    
-    USER_DECIDE -->|"suppress"| MEMORY[project-memory.md<br/>Decisions + Config]
-    USER_DECIDE -->|"fix"| SOURCE[*.tf files modified]
-    USER_DECIDE -->|"plan fix"| REMPLAN_FILE[remediation-plan.md<br/>Action items]
-    USER_DECIDE -->|"accept"| DEBT_FILE[tech-debt.md<br/>Accepted items]
-    USER_DECIDE -->|"baseline"| BASELINE_FILE[.checkov.baseline<br/>Lock current state]
-    
-    SOURCE --> VERIFY_STEP[Re-scan verify]
-    VERIFY_STEP --> TRACKING
-```
+Mỗi finding có đầy đủ:
 
-### Lifecycle
+| # | Check ID | Finding | Resource | File | Line | Owner | Status |
+|---|----------|---------|----------|------|------|-------|--------|
+| 1 | CKV_AWS_93 | S3 public access | `aws_s3_bucket.data` | `level0-foundation/s3.tf` | 15 | TBD | ⬚ Open |
 
-```
-[1] PLAN → [2] SCAN → [3] ANALYZE → [4] TRACK → [5] REMEDIATE → [6] VERIFY → [7] REPORT
-```
-
-| Phase | Mô tả |
-|-------|--------|
-| Plan | Detect files, check prerequisites, tạo plan → user approve |
-| Scan | Chạy `checkov` full scan local (tất cả 456 AWS checks) |
-| Analyze | Parse JSON → severity breakdown → top findings |
-| Track | Append vào tracking.md (lịch sử, delta) |
-| Remediate | Fix finding → sửa file .tf trực tiếp |
-| Verify | Re-scan targeted check → confirm PASS |
-| Report | Map findings sang CIS/PCI-DSS/HIPAA/SOC2 |
-
-## Output
-
-Sau khi scan, power tạo (tại root của project):
-
-```
-your-landing-zone/
-├── .checkov-reports/
-│   ├── state/                          # Persistent — đọc mỗi session
-│   │   ├── tracking.md                # Scan timeline + remediation progress
-│   │   └── project-memory.md          # Decisions, suppressions, config
-│   ├── scans/                          # Versioned — mỗi scan 1 snapshot hoàn chỉnh
-│   │   ├── 001/
-│   │   │   ├── plan.md                # Approved scan plan
-│   │   │   ├── metadata.md            # Scan context (date, version, scope)
-│   │   │   ├── results.json           # Raw Checkov output
-│   │   │   ├── summary.md            # Human-readable findings
-│   │   │   ├── remediation-plan.md   # Priority fix plan
-│   │   │   └── tech-debt.md          # Accepted debt
-│   │   ├── 002/
-│   │   │   ├── ...                    # Same structure
-│   │   │   └── delta.md              # Changes vs scan #001
-│   │   └── latest.txt                 # "002"
-│   └── reports/                        # Aggregated (cross-scan)
-│       └── compliance/
-│           └── cis-aws.md
-├── .checkov.yaml                       # Scan config
-├── .checkov.baseline                   # Baseline lock
-├── level0-foundation/
-├── level1-security/
-└── ...
-```
-
-### Kết quả grouped theo folder
-
-Power phân loại findings theo structure:
-
-```
-📊 Scan Results — Landing Zone
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-| Folder | Passed | Failed | CRITICAL | HIGH |
-|--------|--------|--------|----------|------|
-| level0-foundation | 23 | 2 | 0 | 1 |
-| level1-security | 45 | 0 | 0 | 0 |
-| level2-connectivity | 31 | 5 | 1 | 3 |
-| network | 18 | 3 | 0 | 2 |
-| _modules | 52 | 1 | 0 | 0 |
-| ... | | | | |
-```
+Grouped theo priority:
+- **P0 (CRITICAL)** — fix trong 24h
+- **P1 (HIGH)** — fix sprint này
+- **P2 (MEDIUM)** — plan quarter tới
+- **P3 (LOW)** — backlog hoặc suppress
 
 ## Coverage
 
-- **456 unique AWS checks** (CKV_AWS_1 → CKV_AWS_392, CKV2_AWS_1 → CKV2_AWS_78)
-- **Frameworks**: Terraform, CloudFormation, Serverless (SAM)
-- **Compliance**: CIS AWS, PCI-DSS, HIPAA, SOC2, NIST 800-53, GDPR
-- **Full list**: xem [`references/aws-checks-full-list.md`](references/aws-checks-full-list.md)
-
-## Architecture
-
-```
-iac-checkov-aws-power/
-├── POWER.md                             # Kiro entry point (frontmatter + docs)
-├── README.md                            # User guide + mermaid diagrams
-├── references/
-│   ├── aws-checks-full-list.md          # 456 checks offline reference
-│   └── templates/                       # ALL templates agent uses
-│       ├── directory-structure.md       # Folder creation rules
-│       ├── plan.md                      # Pre-scan plan
-│       ├── metadata.md                  # Per-scan context
-│       ├── summary.md                   # Per-scan findings
-│       ├── delta.md                     # Per-scan comparison
-│       ├── remediation-plan.md          # Per-scan fix priorities
-│       ├── tech-debt.md                 # Per-scan accepted debt
-│       ├── tracking.md                  # State timeline
-│       └── project-memory.md            # State decisions
-└── steering/                            # Workflow guides (Kiro on-demand)
-    ├── secops-contract.md               # Core rules, paths, behavior
-    ├── secops-routing.md                # Intent → command dispatch
-    ├── secops-token-budget.md           # Context window management
-    ├── checkov-aws-scan.md              # Execution workflow
-    └── checkov-aws-compliance.md        # Compliance mapping
-```
-
-## Key Principles
-
-- **Plan-First**: Không scan khi chưa có user approve
-- **Full-Scan Default**: Quét tất cả 456 checks, phân loại sau
-- **Append-Only Tracking**: History chỉ append, không overwrite
-- **Session Continuity**: Nhớ context giữa sessions qua tracking + memory files
-- **Auto-Verify**: Fix xong → tự re-scan check đó
-
-## Yêu cầu
-
-- [Kiro IDE](https://kiro.dev)
-- Python ≥ 3.8
-- Checkov (`pip install checkov`)
-- Terraform hoặc CloudFormation files trong workspace
+- **456 unique AWS checks** (full scan, không filter)
+- **Frameworks**: Terraform, CloudFormation, SAM
+- **Compliance**: CIS AWS, PCI-DSS, HIPAA, SOC2, NIST, GDPR
+- **Reference**: [`references/aws-checks-full-list.md`](references/aws-checks-full-list.md)
 
 ## Dành cho Landing Zone
 
-Power hoạt động tốt nhất với AWS Landing Zone / Control Tower / AFT structure:
+Scan recursive toàn bộ workspace — cover hết multi-folder structure:
 
-- **Multi-level**: level0 → level4, scan tất cả trong 1 command
-- **Shared modules**: `_modules/`, `module-ref/` — scan kèm `--download-external-modules`
-- **Policies as Code**: `policies/` folder — Checkov graph-based checks detect cross-resource issues
-- **Multi-account**: `svc-prod/`, `svc-nonprd/`, `management/` — findings grouped per account layer
-- **CI/CD integration**: `.gitlab-ci.yml` / `.github/` — power suggest `.checkov.yaml` config phù hợp
+```
+your-landing-zone/
+├── level0-foundation/      ← scan
+├── level1-security/        ← scan
+├── level2-connectivity/    ← scan
+├── _modules/               ← scan
+├── policies/               ← scan
+├── svc-prod/               ← scan
+└── ...                     ← scan hết
+```
 
-### Recommended .checkov.yaml cho Landing Zone
+Command: `checkov -d . --framework terraform --download-external-modules true`
+
+### Recommended .checkov.yaml
 
 ```yaml
 framework:
@@ -307,22 +144,57 @@ framework:
 
 skip-path:
   - .terraform/
-  - .terragrunt-cache/
   - _backend/
-  - _cicd/
   - docs/
   - scripts/
-  - plans/
 
 download-external-modules: true
 compact: true
-
 output:
-  - cli
   - json
-
 output-file-path: .checkov-reports
 ```
+
+## Architecture
+
+```
+iac-checkov-aws-power/
+├── POWER.md                             # Kiro entry point
+├── README.md                            # Bạn đang đọc
+├── references/
+│   ├── aws-checks-full-list.md          # 456 checks offline
+│   └── templates/                       # Templates cho mọi output
+│       ├── parse-results-guide.md       # JSON→template mapping
+│       ├── directory-structure.md       # Folder rules
+│       ├── plan.md
+│       ├── metadata.md
+│       ├── summary.md
+│       ├── delta.md
+│       ├── remediation-plan.md
+│       ├── tech-debt.md
+│       ├── tracking.md
+│       └── project-memory.md
+└── steering/                            # Kiro loads on-demand
+    ├── secops-contract.md               # Core rules
+    ├── secops-routing.md                # Intent dispatch
+    ├── secops-token-budget.md           # Context management
+    ├── checkov-aws-scan.md              # Execution workflow
+    └── checkov-aws-compliance.md        # Compliance mapping
+```
+
+## Key Principles
+
+- **Full Scan Default** — 456 checks, không filter, không skip
+- **Full Pipeline** — "scan dự án" = chạy hết + report tự động
+- **Per-Scan Snapshot** — mỗi scan folder là self-contained
+- **Session Continuity** — nhớ state giữa sessions
+- **Parse Real Data** — extract từ results.json, không để placeholder
+
+## Yêu cầu
+
+- [Kiro IDE](https://kiro.dev)
+- Python ≥ 3.8
+- Checkov (`pip install checkov`)
 
 ## License
 
