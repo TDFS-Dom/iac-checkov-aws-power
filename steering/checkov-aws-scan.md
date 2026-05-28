@@ -184,7 +184,7 @@ mv .checkov-reports/scans/$NEXT/results_json.json .checkov-reports/scans/$NEXT/r
 - [ ] `state/project-memory.md` — update nếu có decision mới
 - [ ] `scans/latest.txt` — overwrite với scan number hiện tại
 
-**KHÔNG ĐƯỢC chuyển sang Phase 3 nếu chưa tạo đủ files.**
+**KHÔNG ĐƯỢC dừng sau bước này nếu user yêu cầu "scan toàn bộ dự án" hoặc "scan full" — PHẢI tiếp tục Phase 3 → Phase 7 (full pipeline).**
 
 Verify:
 ```bash
@@ -307,6 +307,22 @@ So sánh với scan trước (`scans/{NNN-1}/results.json`):
 - New findings (có trong current, không có trong previous)
 - Resolved findings (có trong previous, không có trong current)
 - Ghi vào `scans/{NNN}/delta.md`
+
+---
+
+## FULL PIPELINE RULE
+
+**Khi user nói "scan toàn bộ dự án" / "scan full" / "quét hết":**
+
+Agent PHẢI chạy TOÀN BỘ pipeline KHÔNG DỪNG giữa chừng:
+
+```
+Phase 1 (Plan) → Phase 2 (Scan) → Phase 3 (Analyze) → Phase 4 (Track)
+```
+
+Output cuối cùng trình user = `summary.md` content (hiển thị trong chat) + tất cả files đã tạo trong `scans/{NNN}/`.
+
+Agent KHÔNG HỎI "bạn muốn làm gì tiếp?" giữa các phase — chạy hết rồi mới trình kết quả.
 
 ---
 
