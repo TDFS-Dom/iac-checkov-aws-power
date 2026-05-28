@@ -47,30 +47,16 @@
 
 ### Severity Classification Rules
 
-Khi Checkov trả `severity = null` hoặc `UNKNOWN` (phổ biến với Checkov OSS), agent PHẢI tự classify theo bảng sau:
+Khi Checkov trả `severity = null` hoặc `UNKNOWN` (phổ biến với Checkov OSS), agent PHẢI classify theo file:
 
-| Check Category | → Priority | Rationale |
-|----------------|-----------|-----------|
-| IAM admin/wildcard (`CKV_AWS_274`, `CKV_AWS_40`) | P0 | Direct privilege escalation risk |
-| IAM resource wildcard (`CKV_AWS_111`, `CKV_AWS_109`, `CKV_AWS_356`) | P1 | Over-permissive but scoped |
-| Network 0.0.0.0/0 ingress (`CKV_AWS_260`, `CKV_AWS_382`, `CKV_AWS_23`) | P1 | Public exposure |
-| VPC flow logs, default SG (`CKV2_AWS_11`, `CKV2_AWS_12`) | P1 | Visibility gap |
-| Encryption at rest (`CKV_AWS_19`, `CKV_AWS_7`, `CKV_AWS_16`) | P1 | Data protection |
-| S3 logging/replication (`CKV_AWS_18`, `CKV_AWS_144`) | P2 | Observability |
-| S3 lifecycle/notifications (`CKV_AWS_300`, `CKV2_AWS_62`) | P2 | Operational hygiene |
-| SSM/KMS config (`CKV2_AWS_34`, `CKV2_AWS_64`) | P2 | Defense in depth |
-| ALB config (logging, headers, deletion protection) | P3 | Best practice |
-| EC2 config (IMDSv2, monitoring, EBS optimized) | P3 | Hardening |
-| Unattached resources (`CKV2_AWS_5`, `CKV2_AWS_19`) | P3 | Cleanup |
-| Log retention (`CKV_AWS_338`) | P2 | Compliance requirement |
+**→ `references/severity-classification.md`** (Single Source of Truth)
 
-**Nếu check KHÔNG có trong bảng**: classify dựa trên resource type:
-- IAM/STS → P1
-- Network/SG/VPC → P1
-- Storage (S3/EBS/RDS) encryption → P1
-- Storage config (logging/lifecycle) → P2
-- Compute/monitoring → P3
-- Other → P3
+Agent PHẢI:
+1. Đọc `references/severity-classification.md` TRƯỚC khi classify
+2. Follow Decision Tree trong file đó (Check ID → keyword pattern → resource type → default MEDIUM)
+3. KHÔNG tự classify theo cảm tính — MỌI classification phải trace được tới 1 rule trong file
+
+GHI NOTE ở đầu remediation-plan: "Severity classified per `references/severity-classification.md` (Checkov OSS does not provide severity metadata)"
 
 ---
 

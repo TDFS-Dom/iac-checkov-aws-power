@@ -204,10 +204,12 @@ Pending: 5 (0 CRITICAL, 3 HIGH, 2 MEDIUM)
 
 ### v1.2.0 (2026-05-28)
 - Add `checkov-aws-skip-review.md` steering — review logic + detect outdated suppressions
+- Add `references/severity-classification.md` — single source of truth cho severity classification khi Checkov OSS không có severity metadata
 - New commands: `review-skip`, `review-outdate`
 - Suppress command enhanced: severity-gated validation, mandatory justification
 - Known false positive auto-detection (GWLB, module SGs, EIP NAT, Lambda monitoring)
 - Quarterly review reminder mechanism
+- Remediation-plan template now references severity-classification.md (không inline rules)
 - Now 7 steering files (2 always-loaded + 5 on-demand)
 
 ### v1.1.0 (2026-05-28)
