@@ -42,7 +42,11 @@ Plan → Scan (456 AWS checks) → Analyze → Report đầy đủ
 | Fix CKV_AWS_93 | Sửa file .tf + verify |
 | Tiếp tục | Xem state → recommend next |
 | Report CIS AWS | Compliance report |
+| Review skip | Đánh giá logic các `#checkov:skip` trong code |
+| Review outdate | Tìm skip hết hạn, orphaned, deprecated |
+| Suppress CKV_AWS_18 | Thêm inline skip với justification |
 | Tạo baseline | Lock current state |
+| Export docx | Xuất security report .docx |
 
 ## Output — Mỗi scan tạo gì?
 
@@ -114,10 +118,11 @@ Grouped theo priority:
 
 ## Coverage
 
-- **456 unique AWS checks** (full scan, không filter)
+- **456 unique AWS checks** (full scan, không filter) — mỗi check có severity (CRITICAL/HIGH/MEDIUM/LOW)
 - **Frameworks**: Terraform, CloudFormation, SAM
 - **Compliance**: CIS AWS, PCI-DSS, HIPAA, SOC2, NIST, GDPR
-- **Reference**: [`references/aws-checks-full-list.md`](references/aws-checks-full-list.md)
+- **Severity lookup**: [`references/aws-checks-full-list.md`](references/aws-checks-full-list.md) (456 checks + severity column)
+- **Classification logic**: [`references/severity-classification.md`](references/severity-classification.md) (scoring matrix for new checks)
 
 ## Dành cho Landing Zone
 
@@ -164,7 +169,8 @@ iac-checkov-aws-power/
 ├── POWER.md                             # Kiro entry point
 ├── README.md                            # Bạn đang đọc
 ├── references/
-│   ├── aws-checks-full-list.md          # 456 checks offline
+│   ├── aws-checks-full-list.md          # 456 checks + severity column
+│   ├── severity-classification.md       # Scoring matrix + fallback rules
 │   └── templates/                       # Templates cho mọi output
 │       ├── parse-results-guide.md       # JSON→template mapping
 │       ├── directory-structure.md       # Folder rules
@@ -176,12 +182,13 @@ iac-checkov-aws-power/
 │       ├── tech-debt.md
 │       ├── tracking.md
 │       └── project-memory.md
-└── steering/                            # Kiro loads on-demand
-    ├── secops-contract.md               # Core rules
-    ├── secops-routing.md                # Intent dispatch
+└── steering/                            # Kiro loads on-demand (7 files)
+    ├── secops-contract.md               # Core rules (always-loaded)
+    ├── secops-routing.md                # Intent dispatch (always-loaded)
     ├── secops-token-budget.md           # Context management
     ├── checkov-aws-scan.md              # Execution workflow
     ├── checkov-aws-compliance.md        # Compliance mapping
+    ├── checkov-aws-skip-review.md       # Review skip logic + detect outdated
     └── docx-export.md                   # Export to .docx
 ```
 
