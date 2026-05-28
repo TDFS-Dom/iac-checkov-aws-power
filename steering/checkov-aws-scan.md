@@ -117,9 +117,9 @@ Tạo file `.checkov-reports/scans/{NNN}/plan.md` với nội dung plan.
 checkov -d {target_dir} \
   --framework {framework} \
   --compact \
-  -o json -o cli \
+  -o json \
   --output-file-path .checkov-reports/scans/$NEXT \
-  2>&1 | tee .checkov-reports/scans/$NEXT/scan-log.txt
+  
 
 # Update latest pointer
 echo "$NEXT" > .checkov-reports/scans/latest.txt
@@ -131,7 +131,7 @@ checkov -d {target_dir} \
   --framework {framework} \
   --baseline .checkov.baseline \
   --compact \
-  -o json -o cli \
+  -o json \
   --output-file-path .checkov-reports/scans/$NEXT
 ```
 

@@ -125,14 +125,12 @@ Remediation plan + tech debt nằm TRONG scan folder (per-scan snapshot):
 
 ## Checkov Output Mapping
 
-Khi chạy `checkov -o json -o cli --output-file-path .checkov-reports/scans/{NNN}`:
+Khi chạy `checkov -o json --output-file-path .checkov-reports/scans/{NNN}`:
 
 Checkov tạo:
 - `results_json.json` → rename thành `results.json`
-- `results_cli.txt` → có thể xóa (summary.md thay thế)
 
 Agent PHẢI rename sau khi scan:
 ```bash
 mv .checkov-reports/scans/$NEXT/results_json.json .checkov-reports/scans/$NEXT/results.json 2>/dev/null
-rm -f .checkov-reports/scans/$NEXT/results_cli.txt 2>/dev/null
 ```

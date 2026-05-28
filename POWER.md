@@ -117,7 +117,7 @@ Full rules in `secops-contract.md`. Key points:
 
 ### Phase 2: SCAN (local execution)
 ```bash
-checkov -d {target} --framework {fw} --compact -o json -o cli \
+checkov -d {target} --framework {fw} --compact -o json \
   --output-file-path .checkov-reports
 ```
 

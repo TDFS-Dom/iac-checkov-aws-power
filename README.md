@@ -59,7 +59,7 @@ your-landing-zone/
 
 Command thực thi:
 ```bash
-checkov -d . --framework terraform --compact -o json -o cli \
+checkov -d . --framework terraform --compact -o json \
   --output-file-path .checkov-reports \
   --download-external-modules true
 ```
