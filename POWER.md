@@ -41,6 +41,7 @@ plan → scan → analyze → track → remediate → verify → report
 - Compliance analysis → `checkov-aws-compliance.md`
 - Detecting next step → `secops-contract.md` (Next Step section)
 - Token budget management → `secops-token-budget.md`
+- Export report to .docx → `docx-export.md`
 
 ## Quick Start
 

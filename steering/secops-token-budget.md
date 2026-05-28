@@ -31,6 +31,7 @@ Guardrail cho context window. Kiểm soát steering file loading.
 | next / status | secops-contract (sufficient) | ~4KB |
 | custom-policy | secops-contract + checkov-aws-compliance | ~10KB |
 | suppress | secops-contract (sufficient) | ~4KB |
+| export-docx | secops-contract + docx-export | ~10KB |
 
 ## Khi budget tight
 

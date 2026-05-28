@@ -21,6 +21,7 @@ Khi user dùng ngôn ngữ tự nhiên, route intent theo bảng sau. Đây là 
 | Custom policy / tạo rule riêng | `custom-policy` | `checkov-aws-compliance.md` |
 | So sánh / delta / thay đổi gì | `delta` | Inspect tracking.md |
 | Cài đặt checkov / install | `install` | `checkov-aws-scan.md` (Auto-Install) |
+| Xuất docx / export word / tạo file word / gửi report | `export-docx` | `docx-export.md` |
 
 ## Routing Priority
 
@@ -48,6 +49,7 @@ Khi ambiguous:
 | Custom rule / policy riêng | custom-policy |
 | Plan fix / ưu tiên / roadmap | remediation-plan |
 | Tech debt / debt / nợ kỹ thuật | tech-debt |
+| Xuất file / export / word / docx / gửi report | export-docx |
 
 ## Display Format
 
