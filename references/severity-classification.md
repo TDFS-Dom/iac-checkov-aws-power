@@ -71,97 +71,22 @@ Agent classify bằng cách đánh giá finding trên 2 trục:
 
 ---
 
-## Pre-computed Mappings (Top 60 AWS Checks)
+## Pre-computed Mappings
 
-Agent PHẢI check bảng này TRƯỚC khi dùng ma trận. Nếu Check ID có ở đây → dùng trực tiếp, KHÔNG cần đánh giá ma trận.
+**→ Xem `references/aws-checks-full-list.md`** — file này chứa severity cho TẤT CẢ 456 checks (cột Severity).
 
-> **Cross-reference**: Cột "SH Control" = AWS Security Hub FSBP control ID tương đương.
-> Cột "SH Sev" = severity chính thức từ Security Hub. Dùng làm validation — nếu agent classify khác Security Hub > 1 level → cần justify.
-> Source: [Security Hub controls reference](https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-controls-reference.html)
+Agent tra severity bằng cách lookup Check ID trong `aws-checks-full-list.md`. KHÔNG cần bảng riêng ở đây.
 
-### CRITICAL (Exploit: TRIVIAL/LOW × Impact: CATASTROPHIC/SIGNIFICANT)
+### Justified Deviations từ AWS Security Hub
 
-| Check ID | Check Name | SH Control | SH Sev | Exploit | Impact |
-|----------|-----------|-----------|--------|---------|--------|
-| CKV_AWS_274 | IAM AdministratorAccess policy | IAM.1 | CRITICAL | LOW | CATASTROPHIC |
-| CKV_AWS_62 | IAM full `*:*` admin policy | IAM.1 | CRITICAL | LOW | CATASTROPHIC |
-| CKV_AWS_93 | S3 Block Public Access disabled | S3.2/S3.3 | CRITICAL | TRIVIAL | SIGNIFICANT |
-| CKV_AWS_54 | S3 Block Public Policy disabled | S3.1 | MEDIUM* | TRIVIAL | SIGNIFICANT |
-| CKV_AWS_56 | S3 RestrictPublicBuckets disabled | S3.1 | MEDIUM* | TRIVIAL | SIGNIFICANT |
-| CKV_AWS_24 | SG open 0.0.0.0/0 → port 22 (SSH) | EC2.19 | HIGH | TRIVIAL | SIGNIFICANT |
-| CKV_AWS_25 | SG open 0.0.0.0/0 → port 3389 (RDP) | EC2.19 | HIGH | TRIVIAL | SIGNIFICANT |
-| CKV_AWS_41 | Hardcoded credentials in provider | — | — | TRIVIAL | CATASTROPHIC |
-| CKV_AWS_46 | Hardcoded secret in Lambda env | — | — | TRIVIAL | SIGNIFICANT |
-| CKV_AWS_17 | RDS publicly accessible | RDS.2 | CRITICAL | TRIVIAL | SIGNIFICANT |
+Một số checks có severity khác với Security Hub FSBP. Lý do:
 
-> *CKV_AWS_54/56 map tới S3.1 (account-level, MEDIUM trong SH) nhưng IaC context = bucket-level exposure → chúng ta classify CRITICAL vì nếu disable = bucket exposed trực tiếp. Đây là justified deviation từ SH.
-
-### HIGH (Exploit: LOW/MODERATE × Impact: SIGNIFICANT/MODERATE)
-
-| Check ID | Check Name | SH Control | SH Sev | Exploit | Impact |
-|----------|-----------|-----------|--------|---------|--------|
-| CKV_AWS_111 | IAM write without constraints | IAM.1 | CRITICAL* | LOW | SIGNIFICANT |
-| CKV_AWS_109 | IAM permissions management exposure | IAM.1 | CRITICAL* | LOW | SIGNIFICANT |
-| CKV_AWS_356 | IAM `*` resource for restrictable actions | IAM.1 | CRITICAL* | LOW | SIGNIFICANT |
-| CKV_AWS_63 | IAM `*` as statement actions | IAM.1 | CRITICAL* | LOW | SIGNIFICANT |
-| CKV_AWS_40 | IAM policy with `*` actions | IAM.1 | CRITICAL* | LOW | SIGNIFICANT |
-| CKV_AWS_288 | IAM data exfiltration risk | — | — | LOW | SIGNIFICANT |
-| CKV_AWS_289 | IAM permissions management without constraints | — | — | LOW | SIGNIFICANT |
-| CKV_AWS_290 | IAM write access without constraints | — | — | LOW | SIGNIFICANT |
-| CKV_AWS_286 | IAM privilege escalation | — | — | LOW | CATASTROPHIC |
-| CKV_AWS_19 | S3 encryption at rest disabled | S3.4 | MEDIUM | LOW | SIGNIFICANT |
-| CKV_AWS_7 | EBS not encrypted | EC2.3 | MEDIUM | LOW | SIGNIFICANT |
-| CKV_AWS_16 | RDS storage not encrypted | RDS.3 | MEDIUM | LOW | SIGNIFICANT |
-| CKV_AWS_35 | CloudTrail logs not encrypted | CloudTrail.2 | MEDIUM | MODERATE | SIGNIFICANT |
-| CKV_AWS_20 | S3 SSL not enforced | S3.5 | MEDIUM | LOW | MODERATE |
-| CKV_AWS_2 | ALB not using HTTPS | ELB.2 | MEDIUM | LOW | MODERATE |
-| CKV2_AWS_11 | VPC flow logs not enabled | EC2.6 | MEDIUM | MODERATE | MODERATE |
-| CKV2_AWS_12 | Default SG not restricting traffic | EC2.2 | HIGH | LOW | MODERATE |
-| CKV_AWS_260 | SG ingress 0.0.0.0/0 port 80/443 | EC2.18 | HIGH | TRIVIAL | MODERATE |
-| CKV_AWS_382 | SG egress 0.0.0.0/0 all ports | — | — | LOW | MODERATE |
-| CKV_AWS_49 | CloudTrail not enabled | CloudTrail.1 | HIGH | MODERATE | SIGNIFICANT |
-| CKV_AWS_79 | EC2 IMDSv1 enabled | EC2.8 | HIGH | MODERATE | SIGNIFICANT |
-| CKV_AWS_173 | Lambda env vars not encrypted CMK | Lambda.7 | MEDIUM | LOW | MODERATE |
-| CKV2_AWS_64 | KMS key rotation not enabled | KMS.4 | MEDIUM | MODERATE | MODERATE |
-| CKV_AWS_18 | S3 access logging disabled | S3.9 | MEDIUM | MODERATE | MODERATE |
-| CKV_AWS_61 | IAM cross-account assume unrestricted | — | — | LOW | SIGNIFICANT |
-| CKV_AWS_60 | IAM role public assume | — | — | TRIVIAL | MODERATE |
-
-> *CKV_AWS_111/109/356/63/40: Security Hub maps tới IAM.1 (CRITICAL) khi policy = full admin. Checkov fires trên broader "wildcard" patterns (not necessarily full admin) → chúng ta classify HIGH vì cần existing credentials + not always full admin. Justified deviation.
-> *CKV_AWS_19/7/16: Security Hub = MEDIUM cho encryption at rest. IaC context = data exposed nếu volume/bucket accessed → chúng ta classify HIGH vì đây là data protection gap cho sensitive data stores. Justified deviation — reassess per environment.
-
-### MEDIUM (Exploit: MODERATE/HIGH × Impact: MODERATE/MINIMAL)
-
-| Check ID | Check Name | SH Control | SH Sev | Exploit | Impact |
-|----------|-----------|-----------|--------|---------|--------|
-| CKV_AWS_150 | LB deletion protection disabled | ELB.6 | MEDIUM | HIGH | MODERATE |
-| CKV_AWS_21 | S3 versioning disabled | S3.14 | LOW | MODERATE | MODERATE |
-| CKV_AWS_133 | RDS backup retention | RDS.11 | MEDIUM | MODERATE | MODERATE |
-| CKV_AWS_144 | S3 cross-region replication disabled | — | — | HIGH | MODERATE |
-| CKV_AWS_116 | Lambda no DLQ | Lambda.4 | LOW | MODERATE | MINIMAL |
-| CKV_AWS_50 | Lambda no X-Ray tracing | Lambda.5 | LOW | HIGH | MINIMAL |
-| CKV_AWS_272 | Lambda no code signing | Lambda.8 | LOW | MODERATE | MODERATE |
-| CKV_AWS_115 | Lambda no reserved concurrency | Lambda.6 | MEDIUM | HIGH | MINIMAL |
-| CKV_AWS_117 | Lambda not in VPC | Lambda.3 | LOW | MODERATE | MODERATE |
-| CKV_AWS_338 | CW log retention < 1 year | CloudWatch.1 | MEDIUM | HIGH | MODERATE |
-| CKV_AWS_300 | S3 lifecycle abort multipart | — | — | HIGH | MINIMAL |
-| CKV2_AWS_62 | S3 event notifications disabled | — | — | HIGH | MINIMAL |
-| CKV2_AWS_61 | S3 lifecycle not configured | — | — | HIGH | MINIMAL |
-| CKV_AWS_91 | ALB access logs disabled | ELB.5 | MEDIUM | MODERATE | MODERATE |
-| CKV_AWS_131 | ALB not dropping invalid headers | ELB.4 | MEDIUM | MODERATE | MODERATE |
-| CKV2_AWS_5 | Security Group not attached | EC2.22 | MEDIUM | HIGH | MINIMAL |
-| CKV_AWS_331 | TGW auto-accept attachments | EC2.23 | HIGH | MODERATE | MODERATE |
-| CKV_AWS_126 | EC2 detailed monitoring disabled | EC2.7 | LOW | HIGH | MINIMAL |
-| CKV_AWS_135 | EC2 EBS optimized disabled | — | — | HIGH | MINIMAL |
-| CKV2_AWS_19 | EIP not associated | EC2.12 | LOW | HIGH | MINIMAL |
-
-### LOW (Exploit: HIGH × Impact: MINIMAL)
-
-| Check ID | Check Name | SH Control | SH Sev | Exploit | Impact |
-|----------|-----------|-----------|--------|---------|--------|
-| CKV2_AWS_34 | SSM Parameter not encrypted CMK | — | — | HIGH | MINIMAL |
-| CKV_AWS_158 | CW Log Group not encrypted CMK | CloudWatch.2 | MEDIUM | HIGH | MINIMAL |
-| CKV_AWS_153 | Tagging not enforced | — | — | HIGH | MINIMAL |
+| Check ID | Chúng ta | SH Sev | Lý do deviation |
+|----------|----------|--------|-----------------|
+| CKV_AWS_54, CKV_AWS_56 | CRITICAL | MEDIUM | SH check ở account-level (S3.1). IaC context = bucket-level → disable = exposed trực tiếp |
+| CKV_AWS_111/109/356/63/40 | HIGH | CRITICAL | SH maps tới IAM.1 (full admin). Checkov fires trên broader wildcard patterns (not always full admin) → cần credentials + not full takeover |
+| CKV_AWS_19/7/16 | HIGH | MEDIUM | SH = MEDIUM cho encryption at rest. IaC = data protection gap cho sensitive stores |
+| CKV_AWS_24/25 | CRITICAL | HIGH | SH = HIGH (EC2.19). IaC = direct internet brute-force without any barrier |
 
 ---
 
@@ -291,16 +216,16 @@ Nếu một finding không match bất kỳ tiêu chí cụ thể nào ở trên
 ## Decision Tree (cho agent khi classify)
 
 ```
-1. Check ID có trong `references/aws-checks-full-list.md`? → dùng severity từ đó (456 checks, đầy đủ)
-2. Check ID mới (chưa có trong list)? → dùng Pre-computed table (top 60) ở trên
-3. Vẫn không có? → check_name keyword pattern match
+1. Check ID có trong `references/aws-checks-full-list.md`? → dùng severity từ cột Severity (456 checks)
+2. Check ID mới (chưa có trong list)? → dùng Scoring Matrix (Exploitability × Impact) ở trên
+3. Vẫn không xác định được? → check_name keyword pattern match (xem bảng bên dưới)
 4. Vẫn không match? → resource type fallback table
 5. Vẫn không match? → MEDIUM (default)
 ```
 
 **KHÔNG BAO GIỜ để finding ở UNKNOWN** — mọi finding PHẢI được classify vào 1 trong 4 levels.
 
-> **Note**: `aws-checks-full-list.md` chứa severity cho TẤT CẢ 456 checks hiện có. File này là lookup table hoàn chỉnh. Pre-computed table + Ma trận + Fallback rules trong file này chỉ dùng khi Checkov release checks MỚI chưa có trong list.
+> `aws-checks-full-list.md` là lookup table hoàn chỉnh. Scoring Matrix + Fallback rules chỉ dùng khi Checkov release checks MỚI chưa có trong list.
 
 ---
 
