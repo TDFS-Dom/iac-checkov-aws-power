@@ -193,22 +193,37 @@ flowchart TD
 
 ## Output
 
-Sau khi scan, power tạo (tại root của Landing Zone):
+Sau khi scan, power tạo (tại root của project):
 
 ```
 your-landing-zone/
 ├── .checkov-reports/
-│   ├── tracking.md              # Scan history + delta + per-level breakdown
-│   ├── project-memory.md        # Decisions, suppressions, known issues
-│   ├── results_json.json        # Latest full scan results
-│   ├── scan-log.txt             # Execution log
-│   └── plans/
-│       └── plan-001.md
-├── .checkov.yaml                # Config (skip paths, severity gates)
+│   ├── state/                          # Persistent — đọc mỗi session
+│   │   ├── tracking.md                # Scan timeline + remediation progress
+│   │   └── project-memory.md          # Decisions, suppressions, config
+│   ├── scans/                          # Versioned — mỗi scan 1 folder
+│   │   ├── 001/
+│   │   │   ├── metadata.md            # Scan info (date, scope, version)
+│   │   │   ├── results.json           # Raw Checkov output
+│   │   │   ├── summary.md            # Human-readable findings
+│   │   │   └── plan.md               # Approved scan plan
+│   │   ├── 002/
+│   │   │   ├── metadata.md
+│   │   │   ├── results.json
+│   │   │   ├── summary.md
+│   │   │   ├── plan.md
+│   │   │   └── delta.md              # Changes vs scan #001
+│   │   └── latest.txt                 # "002" — current scan number
+│   └── reports/                        # On-demand documents
+│       ├── remediation-plan.md
+│       ├── tech-debt.md
+│       └── compliance/
+│           └── cis-aws.md
+├── .checkov.yaml                       # Scan config
+├── .checkov.baseline                   # Baseline lock (when created)
 ├── level0-foundation/
 ├── level1-security/
-├── level2-connectivity/
-├── ...
+└── ...
 ```
 
 ### Kết quả grouped theo folder

@@ -30,18 +30,39 @@ plan → scan → analyze → track → remediate → verify → report
 ## Paths
 
 ```yaml
-project_root: .checkov-reports/
-tracking: .checkov-reports/tracking.md
-project_memory: .checkov-reports/project-memory.md
-plans: .checkov-reports/plans/
-results_json: .checkov-reports/results_json.json
-results_cli: .checkov-reports/results_cli.txt
-scan_log: .checkov-reports/scan-log.txt
-compliance_report: .checkov-reports/compliance-report.md
-baseline: .checkov.baseline
+# State (persistent, read every session)
+state_tracking: .checkov-reports/state/tracking.md
+state_memory: .checkov-reports/state/project-memory.md
+
+# Scans (versioned per scan)
+scans_dir: .checkov-reports/scans/
+scan_folder: .checkov-reports/scans/{NNN}/
+scan_metadata: .checkov-reports/scans/{NNN}/metadata.md
+scan_results: .checkov-reports/scans/{NNN}/results.json
+scan_summary: .checkov-reports/scans/{NNN}/summary.md
+scan_plan: .checkov-reports/scans/{NNN}/plan.md
+scan_delta: .checkov-reports/scans/{NNN}/delta.md
+scan_latest: .checkov-reports/scans/latest.txt
+
+# Reports (on-demand)
+reports_dir: .checkov-reports/reports/
+remediation_plan: .checkov-reports/reports/remediation-plan.md
+tech_debt: .checkov-reports/reports/tech-debt.md
+compliance_report: .checkov-reports/reports/compliance/{framework}.md
+
+# Config
 config: .checkov.yaml
-custom_checks: ./custom_checks/
+baseline: .checkov.baseline
 ```
+
+### Scan Versioning Rules
+- Folder name = 3-digit zero-padded: `001/`, `002/`, `003/`
+- `latest.txt` = single line containing current scan number (e.g. "003")
+- `delta.md` created from scan #002 onwards
+- `results.json` = raw Checkov JSON output (KHÔNG modify)
+- `summary.md` = human-readable (generated from results.json)
+- `metadata.md` = scan context (date, version, scope, duration)
+- Templates in `references/templates/` — agent PHẢI dùng đúng format
 
 ## Commands & Prerequisites
 
@@ -148,19 +169,24 @@ Cập nhật project-memory sau:
 
 | Thông tin | File | Khi nào ghi |
 |-----------|------|-------------|
-| Scan results (raw) | `results_json.json` | Mỗi scan (overwrite) |
-| Scan history + delta | `tracking.md` | Mỗi scan (APPEND) |
-| Config decisions | `project-memory.md` | Khi user quyết định |
-| Suppressions + justification | `project-memory.md` | Khi suppress |
-| Remediation plan | `.checkov-reports/remediation-plan.md` | Sau analyze (nếu user yêu cầu) |
-| Tech debt register | `.checkov-reports/tech-debt.md` | Khi baseline lock (nếu user yêu cầu) |
+| Scan results (raw) | `scans/{NNN}/results.json` | Mỗi scan |
+| Scan context | `scans/{NNN}/metadata.md` | Mỗi scan |
+| Findings summary | `scans/{NNN}/summary.md` | Mỗi scan |
+| Scan plan (approved) | `scans/{NNN}/plan.md` | Mỗi scan |
+| Delta vs previous | `scans/{NNN}/delta.md` | Từ scan #002 |
+| Latest scan number | `scans/latest.txt` | Mỗi scan (overwrite) |
+| Scan history timeline | `state/tracking.md` | Mỗi scan (APPEND) |
+| Config decisions | `state/project-memory.md` | Khi user quyết định |
+| Remediation plan | `reports/remediation-plan.md` | Khi user yêu cầu |
+| Tech debt register | `reports/tech-debt.md` | Khi user yêu cầu |
+| Compliance report | `reports/compliance/{fw}.md` | Khi user yêu cầu |
 | Scan config | `.checkov.yaml` | Lần đầu setup |
-| Baseline lock | `.checkov.baseline` | Khi user approve baseline |
-| Command log | `scan-log.txt` | Mỗi scan (overwrite) |
+| Baseline lock | `.checkov.baseline` | Khi user approve |
 
 ### Quy tắc tránh loạn:
-1. **tracking.md** = CHỈ facts (scan number, counts, delta) — KHÔNG có decisions
-2. **project-memory.md** = CHỈ decisions + config — KHÔNG có scan results
-3. **remediation-plan.md** = CHỈ action items — KHÔNG có history
-4. **KHÔNG duplicate** thông tin giữa files
-5. **Session resumption**: đọc project-memory TRƯỚC → tracking SAU
+1. **state/** = CHỈ persistent state (tracking + memory) — đọc MỌI session
+2. **scans/{NNN}/** = CHỈ data của scan đó — immutable sau khi tạo
+3. **reports/** = CHỈ documents do user request — KHÔNG auto-generate
+4. **KHÔNG duplicate** thông tin giữa folders
+5. **Session resumption**: đọc `state/` → `scans/latest.txt` → done
+6. **Templates**: agent PHẢI dùng format từ `references/templates/`

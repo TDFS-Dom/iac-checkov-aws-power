@@ -94,18 +94,19 @@ Confirm để bắt đầu scan?
 ### Step 2.1: Prepare Output Directory
 
 ```bash
-mkdir -p .checkov-reports/plans
+# Determine next scan number
+LATEST=$(cat .checkov-reports/scans/latest.txt 2>/dev/null || echo "000")
+NEXT=$(printf "%03d" $((10#$LATEST + 1)))
+mkdir -p .checkov-reports/scans/$NEXT
+mkdir -p .checkov-reports/state
+mkdir -p .checkov-reports/reports
 ```
 
 ### Step 2.2: Save Plan
 
-Lưu plan đã approve vào file:
+Lưu plan đã approve vào scan folder:
 
-```bash
-# Ghi plan (dùng fsWrite, KHÔNG heredoc)
-```
-
-Tạo file `.checkov-reports/plans/plan-{NNN}.md` với nội dung plan.
+Tạo file `.checkov-reports/scans/{NNN}/plan.md` với nội dung plan.
 
 ### Step 2.3: Run Scan
 
@@ -117,8 +118,11 @@ checkov -d {target_dir} \
   --framework {framework} \
   --compact \
   -o json -o cli \
-  --output-file-path .checkov-reports \
-  2>&1 | tee .checkov-reports/scan-log.txt
+  --output-file-path .checkov-reports/scans/$NEXT \
+  2>&1 | tee .checkov-reports/scans/$NEXT/scan-log.txt
+
+# Update latest pointer
+echo "$NEXT" > .checkov-reports/scans/latest.txt
 ```
 
 **Nếu có baseline:**
@@ -161,13 +165,13 @@ checkov -d {target_dir} --check CKV_AWS_19,CKV_AWS_7,CKV_AWS_61,CKV_AWS_20,CKV_A
 
 ### Step 3.1: Parse Results
 
-Đọc `.checkov-reports/results_json.json` và extract:
+Đọc `.checkov-reports/scans/{NNN}/results_json.json` và extract:
 
 ```bash
 # Summary counts
 python3 -c "
 import json
-with open('.checkov-reports/results_json.json') as f:
+with open('.checkov-reports/scans/$NEXT/results_json.json') as f:
     data = json.load(f)
 s = data.get('summary', {})
 print(f'passed={s.get(\"passed\",0)}')
@@ -247,70 +251,27 @@ Trình user theo format bảng:
 
 ## PHASE 4: TRACK
 
-### Step 4.1: Update Tracking File
+### Step 4.1: Generate Scan Artifacts
 
-Sau mỗi scan, **APPEND** vào `.checkov-reports/tracking.md`:
+Sau mỗi scan, tạo các files trong `scans/{NNN}/`:
+- `metadata.md` — from template `references/templates/metadata.md`
+- `summary.md` — from template `references/templates/summary.md`
+- `delta.md` — from template `references/templates/delta.md` (từ scan #002)
 
-**Nếu file chưa tồn tại** → tạo mới với header:
-```markdown
-# Checkov AWS Scan Tracking
+### Step 4.2: Update Tracking
 
-## Project Info
-| Key | Value |
-|-----|-------|
-| Project | {current directory name} |
-| Target | {target_dir} |
-| Framework | {framework} |
-| First Scan | {YYYY-MM-DD} |
-| Power Version | 1.0.0 |
+**APPEND** entry mới vào `.checkov-reports/state/tracking.md`:
+- Nếu file chưa tồn tại → tạo từ template `references/templates/tracking.md`
+- Thêm row mới vào Timeline table
+- Update "Total Scans" và "Latest Scan" trong header
 
-## Scan History
-```
+### Step 4.3: Delta Calculation
 
-**Append scan entry:**
-```markdown
-
----
-
-### Scan #{N} — {YYYY-MM-DD HH:MM}
-| Metric | Value |
-|--------|-------|
-| Passed | {N} |
-| Failed | {N} |
-| CRITICAL | {N} |
-| HIGH | {N} |
-| MEDIUM | {N} |
-| LOW | {N} |
-| Duration | {N}s |
-| Plan | plan-{NNN}.md |
-
-**Top CRITICAL/HIGH:**
-- {check_id} → {file}:{line} ({description})
-- ...
-
-**Delta vs Previous:** {+/-N} findings ({detail})
-**Status:** {⏳ Pending / ✅ All clear / 🔴 CRITICAL open}
-```
-
-### Step 4.2: Delta Calculation
-
-So sánh với scan trước:
+So sánh với scan trước (`scans/{NNN-1}/results_json.json`):
 - Tổng failed: +/- bao nhiêu
-- New findings (chưa có ở scan trước)
-- Resolved findings (có ở scan trước nhưng mất ở scan này)
-- CRITICAL count change
-
-### Step 4.3: Remediation Log
-
-Khi user fix finding → cập nhật section cuối tracking.md:
-
-```markdown
-## Remediation Log
-| Check ID | File | Status | Fixed Date | Notes |
-|----------|------|--------|------------|-------|
-| CKV_AWS_93 | s3.tf:15 | ✅ Fixed | 2026-05-26 | Added public_access_block |
-| CKV_AWS_23 | vpc.tf:42 | ⏳ Pending | — | Need team review |
-```
+- New findings (có trong current, không có trong previous)
+- Resolved findings (có trong previous, không có trong current)
+- Ghi vào `scans/{NNN}/delta.md`
 
 ---
 
@@ -318,11 +279,12 @@ Khi user fix finding → cập nhật section cuối tracking.md:
 
 ### Step 5.1: Identify Fix
 
-Đọc finding detail từ JSON:
+Đọc finding detail từ scan results:
 ```bash
+LATEST=$(cat .checkov-reports/scans/latest.txt)
 python3 -c "
 import json
-with open('.checkov-reports/results_json.json') as f:
+with open(f'.checkov-reports/scans/$LATEST/results_json.json') as f:
     data = json.load(f)
 for f in data.get('results',{}).get('failed_checks',[]):
     if f['check_id'] == '{CHECK_ID}':
@@ -366,15 +328,19 @@ Mark finding as Fixed trong remediation log.
 
 Khi user quay lại (new session), AI PHẢI:
 
-1. Check `.checkov-reports/tracking.md` exists
-2. Đọc tracking → lấy last scan info
-3. Báo user context:
+1. Check `.checkov-reports/state/project-memory.md` → đọc decisions
+2. Check `.checkov-reports/state/tracking.md` → đọc timeline
+3. Check `.checkov-reports/scans/latest.txt` → lấy scan number
+4. Đọc `scans/{latest}/summary.md` → current findings
+5. Báo user context:
    ```
-   📋 Scan history: {N} scans performed
-   Last scan: {date} — {failed} findings ({critical} CRITICAL)
-   Pending remediation: {N} items
-   
-   Bạn muốn: [re-scan] [fix pending] [new scope]?
+   � SecOps Status
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Scans: {N} performed (latest: #{NNN})
+   Last: {date} — {failed} findings ({critical} CRITICAL)
+   Pending: {N} items unfixed
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   → Next: [re-scan] [fix pending] [report] [new scope]
    ```
 
 ---
