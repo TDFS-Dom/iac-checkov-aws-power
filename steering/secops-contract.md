@@ -117,12 +117,23 @@ baseline: .checkov.baseline
 ### Severity Lookup Rule (BẮT BUỘC — vi phạm = kết quả sai)
 - **MỌI lần classify severity** (generate summary, remediation-plan, tech-debt, hoặc hiển thị cho user) → agent PHẢI đọc file `references/aws-checks-full-list.md` và tra cột Severity theo Check ID.
 - **KHÔNG ĐƯỢC** tự đoán severity từ check description hay "cảm giác".
-- **Ví dụ checks HAY BỊ SAI:**
-  - `CKV_AWS_189` (EBS encrypted with CMK) = **LOW** (không phải HIGH — CMK upgrade, default encryption đã có)
-  - `CKV_AWS_158` (CW Log encrypted KMS) = **LOW** (không phải HIGH)
-  - `CKV2_AWS_34` (SSM Parameter encrypted) = **LOW** (không phải HIGH)
-  - `CKV_AWS_331` (TGW auto-accept) = **MEDIUM** (không phải HIGH)
-  - `CKV_AWS_144` (S3 replication) = **MEDIUM** (không phải HIGH)
+- **KHÔNG ĐƯỢC** dùng keyword "encrypted" → HIGH. Keyword-based classification bị cấm.
+- **CÁCH LÀM ĐÚNG**: Mở file `references/aws-checks-full-list.md` → Ctrl+F check ID → lấy giá trị cột 3.
+
+#### COMMON MISTAKES (agent PHẢI nhớ — đây là checks hay bị classify SAI):
+
+| Check ID | Mô tả | ❌ Agent HAY GÁN SAI | ✅ ĐÚNG (theo file) | Lý do |
+|----------|--------|---------------------|---------------------|-------|
+| CKV_AWS_189 | EBS Volume encrypted by KMS CMK | HIGH | **LOW** | CMK upgrade — default encryption đã có |
+| CKV_AWS_158 | CloudWatch Log Group encrypted by KMS | HIGH | **LOW** | CMK upgrade — default encryption đã có |
+| CKV2_AWS_34 | SSM Parameter encrypted | HIGH | **LOW** | CMK upgrade — default encryption đã có |
+| CKV_AWS_331 | TGW auto-accept attachments | HIGH | **MEDIUM** | Internal org only, not public exposure |
+| CKV_AWS_123 | VPC Endpoint manual acceptance | HIGH | **MEDIUM** | Operational control, not direct exploit |
+| CKV_AWS_144 | S3 cross-region replication | HIGH | **MEDIUM** | DR gap, not security breach |
+| CKV2_AWS_19 | EIP not attached | HIGH/MEDIUM | **MEDIUM** | Cost waste, not security |
+| CKV_AWS_272 | Lambda code signing | HIGH | **MEDIUM** | Defense-in-depth, not immediate risk |
+
+**Pattern rule**: Bất kỳ check nào nói "encrypted by KMS using CMK" hoặc "encrypted using customer managed Key" = **LOW** (trừ CloudTrail CMK = HIGH vì tamper protection).
 
 ### Append-Only Tracking
 - tracking.md chỉ APPEND, KHÔNG overwrite
