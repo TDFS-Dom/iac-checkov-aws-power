@@ -49,14 +49,15 @@
 
 Khi Checkov trả `severity = null` hoặc `UNKNOWN` (phổ biến với Checkov OSS), agent PHẢI classify theo file:
 
-**→ `references/severity-classification.md`** (Single Source of Truth)
+**→ `references/aws-checks-full-list.md`** (456 checks với cột Severity — lookup TRƯỚC TIÊN)
+**→ `references/severity-classification.md`** (Scoring Matrix — chỉ dùng cho checks MỚI không có trong list)
 
 Agent PHẢI:
-1. Đọc `references/severity-classification.md` TRƯỚC khi classify
-2. Follow Decision Tree trong file đó (Check ID → keyword pattern → resource type → default MEDIUM)
-3. KHÔNG tự classify theo cảm tính — MỌI classification phải trace được tới 1 rule trong file
+1. Đọc `references/aws-checks-full-list.md` → tìm Check ID → lấy severity từ cột Severity
+2. Nếu Check ID KHÔNG có trong file (check mới) → đọc `references/severity-classification.md` → dùng Scoring Matrix
+3. KHÔNG tự classify theo cảm tính — MỌI classification phải trace được tới 1 trong 2 files trên
 
-GHI NOTE ở đầu remediation-plan: "Severity classified per `references/severity-classification.md` (Checkov OSS does not provide severity metadata)"
+GHI NOTE ở đầu remediation-plan: "Severity lookup from `references/aws-checks-full-list.md` (Checkov OSS does not provide severity metadata)"
 
 ---
 
