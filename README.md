@@ -152,7 +152,9 @@ download-external-modules: true
 compact: true
 output:
   - json
-output-file-path: .checkov-reports
+
+# NOTE: output-file-path NOT set here — agent controls via --output-file-path flag
+# to ensure output goes to correct scans/{NNN}/ folder per scan
 ```
 
 ## Architecture
@@ -179,7 +181,8 @@ iac-checkov-aws-power/
     ├── secops-routing.md                # Intent dispatch
     ├── secops-token-budget.md           # Context management
     ├── checkov-aws-scan.md              # Execution workflow
-    └── checkov-aws-compliance.md        # Compliance mapping
+    ├── checkov-aws-compliance.md        # Compliance mapping
+    └── docx-export.md                   # Export to .docx
 ```
 
 ## Key Principles

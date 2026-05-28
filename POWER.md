@@ -119,7 +119,7 @@ Full rules in `secops-contract.md`. Key points:
 ### Phase 2: SCAN (local execution)
 ```bash
 checkov -d {target} --framework {fw} --compact -o json \
-  --output-file-path .checkov-reports
+  --output-file-path .checkov-reports/scans/{NNN}
 ```
 
 ### Phase 3: ANALYZE
@@ -190,6 +190,14 @@ Pending: 5 (0 CRITICAL, 3 HIGH, 2 MEDIUM)
 ---
 
 ## Changelog
+
+### v1.1.0 (2026-05-28)
+- Add `docx-export.md` steering (export security reports to .docx)
+- Fix severity UNKNOWN handling (classification rules for Checkov OSS)
+- Upgrade `remediation-plan.md` and `tech-debt.md` templates to v2.0
+- Add Level 1/2 approach for tech-debt (auto-generate vs user-enriched)
+- Fix cross-file path inconsistencies
+- Now 6 steering files (2 always-loaded + 4 on-demand)
 
 ### v1.0.0 (2026-05-26)
 - Initial release
