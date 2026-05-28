@@ -49,7 +49,7 @@ Gom TẤT CẢ per-scan artifacts + state thành 1 document có cấu trúc:
 ← Lấy từ: plan.md
 
 ## Appendix B: Severity Classification
-← Lấy từ: remediation-plan.md (Severity Classification Rules table)
+← Lấy từ: `references/severity-classification.md` (Scoring Matrix + Pre-computed Mappings)
 ```
 
 ### Source files → Document sections mapping
@@ -65,7 +65,7 @@ Gom TẤT CẢ per-scan artifacts + state thành 1 document có cấu trúc:
 | Scan History | `state/tracking.md` | Timeline + Remediation Log |
 | Project Context | `state/project-memory.md` | Context + Patterns + Decisions |
 | Scan Plan | `scans/{NNN}/plan.md` | Appendix |
-| Classification Rules | `remediation-plan.md` template | Appendix — severity lookup |
+| Classification Rules | `references/severity-classification.md` | Appendix — full scoring matrix + mappings |
 
 ---
 
