@@ -201,26 +201,23 @@ your-landing-zone/
 │   ├── state/                          # Persistent — đọc mỗi session
 │   │   ├── tracking.md                # Scan timeline + remediation progress
 │   │   └── project-memory.md          # Decisions, suppressions, config
-│   ├── scans/                          # Versioned — mỗi scan 1 folder
+│   ├── scans/                          # Versioned — mỗi scan 1 snapshot hoàn chỉnh
 │   │   ├── 001/
-│   │   │   ├── metadata.md            # Scan info (date, scope, version)
+│   │   │   ├── plan.md                # Approved scan plan
+│   │   │   ├── metadata.md            # Scan context (date, version, scope)
 │   │   │   ├── results.json           # Raw Checkov output
 │   │   │   ├── summary.md            # Human-readable findings
-│   │   │   └── plan.md               # Approved scan plan
+│   │   │   ├── remediation-plan.md   # Priority fix plan
+│   │   │   └── tech-debt.md          # Accepted debt
 │   │   ├── 002/
-│   │   │   ├── metadata.md
-│   │   │   ├── results.json
-│   │   │   ├── summary.md
-│   │   │   ├── plan.md
+│   │   │   ├── ...                    # Same structure
 │   │   │   └── delta.md              # Changes vs scan #001
-│   │   └── latest.txt                 # "002" — current scan number
-│   └── reports/                        # On-demand documents
-│       ├── remediation-plan.md
-│       ├── tech-debt.md
+│   │   └── latest.txt                 # "002"
+│   └── reports/                        # Aggregated (cross-scan)
 │       └── compliance/
 │           └── cis-aws.md
 ├── .checkov.yaml                       # Scan config
-├── .checkov.baseline                   # Baseline lock (when created)
+├── .checkov.baseline                   # Baseline lock
 ├── level0-foundation/
 ├── level1-security/
 └── ...
@@ -255,16 +252,26 @@ Power phân loại findings theo structure:
 
 ```
 iac-checkov-aws-power/
-├── POWER.md                     # Metadata + documentation (Kiro reads this)
-├── README.md                    # Hướng dẫn sử dụng (bạn đang đọc)
+├── POWER.md                             # Kiro entry point (frontmatter + docs)
+├── README.md                            # User guide + mermaid diagrams
 ├── references/
-│   └── aws-checks-full-list.md  # 456 checks offline reference
-└── steering/                    # Workflow guides (Kiro loads on-demand)
-    ├── secops-contract.md       # Core rules, paths, behavior
-    ├── secops-routing.md        # Intent → command dispatch
-    ├── secops-token-budget.md   # Context window management
-    ├── checkov-aws-scan.md      # Execution workflow
-    └── checkov-aws-compliance.md # Compliance mapping tables
+│   ├── aws-checks-full-list.md          # 456 checks offline reference
+│   └── templates/                       # ALL templates agent uses
+│       ├── directory-structure.md       # Folder creation rules
+│       ├── plan.md                      # Pre-scan plan
+│       ├── metadata.md                  # Per-scan context
+│       ├── summary.md                   # Per-scan findings
+│       ├── delta.md                     # Per-scan comparison
+│       ├── remediation-plan.md          # Per-scan fix priorities
+│       ├── tech-debt.md                 # Per-scan accepted debt
+│       ├── tracking.md                  # State timeline
+│       └── project-memory.md            # State decisions
+└── steering/                            # Workflow guides (Kiro on-demand)
+    ├── secops-contract.md               # Core rules, paths, behavior
+    ├── secops-routing.md                # Intent → command dispatch
+    ├── secops-token-budget.md           # Context window management
+    ├── checkov-aws-scan.md              # Execution workflow
+    └── checkov-aws-compliance.md        # Compliance mapping
 ```
 
 ## Key Principles

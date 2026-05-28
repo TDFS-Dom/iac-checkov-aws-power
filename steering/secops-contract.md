@@ -174,19 +174,19 @@ Cập nhật project-memory sau:
 | Findings summary | `scans/{NNN}/summary.md` | Mỗi scan |
 | Scan plan (approved) | `scans/{NNN}/plan.md` | Mỗi scan |
 | Delta vs previous | `scans/{NNN}/delta.md` | Từ scan #002 |
+| Remediation plan | `scans/{NNN}/remediation-plan.md` | Mỗi scan (per-scan snapshot) |
+| Tech debt register | `scans/{NNN}/tech-debt.md` | Mỗi scan (per-scan snapshot) |
 | Latest scan number | `scans/latest.txt` | Mỗi scan (overwrite) |
 | Scan history timeline | `state/tracking.md` | Mỗi scan (APPEND) |
 | Config decisions | `state/project-memory.md` | Khi user quyết định |
-| Remediation plan | `reports/remediation-plan.md` | Khi user yêu cầu |
-| Tech debt register | `reports/tech-debt.md` | Khi user yêu cầu |
-| Compliance report | `reports/compliance/{fw}.md` | Khi user yêu cầu |
+| Compliance report | `reports/compliance/{fw}.md` | Khi user yêu cầu (aggregated) |
 | Scan config | `.checkov.yaml` | Lần đầu setup |
 | Baseline lock | `.checkov.baseline` | Khi user approve |
 
-### Quy tắc tránh loạn:
-1. **state/** = CHỈ persistent state (tracking + memory) — đọc MỌI session
-2. **scans/{NNN}/** = CHỈ data của scan đó — immutable sau khi tạo
-3. **reports/** = CHỈ documents do user request — KHÔNG auto-generate
-4. **KHÔNG duplicate** thông tin giữa folders
-5. **Session resumption**: đọc `state/` → `scans/latest.txt` → done
+### Quy tắc:
+1. **state/** = persistent cross-session — đọc MỌI session
+2. **scans/{NNN}/** = self-contained snapshot (plan + results + summary + remediation + debt + delta)
+3. **reports/** = aggregated cross-scan (compliance only)
+4. **Mỗi scan folder = đủ context riêng** — không cần xem folder khác
+5. **Session resumption**: `state/` → `scans/latest.txt` → `scans/{latest}/summary.md`
 6. **Templates**: agent PHẢI dùng format từ `references/templates/`

@@ -51,6 +51,8 @@ Update:
 
 ## Khi user yêu cầu report
 
+Compliance reports (cross-scan, aggregated) go to `reports/`:
+
 ```bash
 mkdir -p .checkov-reports/reports/compliance
 ```
@@ -58,11 +60,18 @@ mkdir -p .checkov-reports/reports/compliance
 ```
 .checkov-reports/
 └── reports/
-    ├── remediation-plan.md    ← from references/remediation-plan-template.md
-    ├── tech-debt.md           ← from references/tech-debt-template.md
     └── compliance/
-        ├── cis-aws.md         ← generated
-        └── pci-dss.md         ← generated
+        ├── cis-aws.md
+        └── pci-dss.md
+```
+
+Remediation plan + tech debt nằm TRONG scan folder (per-scan snapshot):
+
+```
+.checkov-reports/
+└── scans/{NNN}/
+    ├── remediation-plan.md    ← from templates/remediation-plan.md
+    └── tech-debt.md           ← from templates/tech-debt.md
 ```
 
 ## Full structure (sau nhiều scans + reports)
@@ -73,29 +82,25 @@ mkdir -p .checkov-reports/reports/compliance
 │   ├── tracking.md                    # Timeline + remediation progress
 │   └── project-memory.md             # Decisions + config + suppressions
 │
-├── scans/                              # VERSIONED — immutable sau khi tạo
+├── scans/                              # VERSIONED — mỗi scan 1 snapshot hoàn chỉnh
 │   ├── 001/
-│   │   ├── plan.md
-│   │   ├── metadata.md
-│   │   ├── results.json
-│   │   └── summary.md
+│   │   ├── plan.md                    # Approved scan plan
+│   │   ├── metadata.md               # Scan context (date, version, scope)
+│   │   ├── results.json              # Raw Checkov output
+│   │   ├── summary.md                # Human-readable findings
+│   │   ├── remediation-plan.md       # Priority fix plan cho scan này
+│   │   └── tech-debt.md              # Accepted debt tại thời điểm này
 │   ├── 002/
 │   │   ├── plan.md
 │   │   ├── metadata.md
 │   │   ├── results.json
 │   │   ├── summary.md
-│   │   └── delta.md
-│   ├── 003/
-│   │   ├── plan.md
-│   │   ├── metadata.md
-│   │   ├── results.json
-│   │   ├── summary.md
-│   │   └── delta.md
-│   └── latest.txt                     # "003"
+│   │   ├── delta.md                   # Changes vs scan #001
+│   │   ├── remediation-plan.md       # Updated plan (delta reflected)
+│   │   └── tech-debt.md              # Updated debt
+│   └── latest.txt                     # "002"
 │
-└── reports/                            # ON-DEMAND — chỉ khi user yêu cầu
-    ├── remediation-plan.md
-    ├── tech-debt.md
+└── reports/                            # AGGREGATED — cross-scan reports
     └── compliance/
         ├── cis-aws.md
         └── pci-dss.md
