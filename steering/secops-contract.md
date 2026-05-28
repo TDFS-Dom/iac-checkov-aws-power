@@ -132,9 +132,35 @@ File `.checkov-reports/project-memory.md` lưu trữ:
 - Compliance targets (CIS/PCI/HIPAA đã chọn)
 - Fix patterns applied (recurring remediation patterns)
 - Environment notes (dev/staging/prod differences)
+- Decisions log (mỗi quyết định quan trọng)
+- Session history (last 5 actions)
+
+**Template**: Tạo từ `references/project-memory-template.md` khi lần đầu scan.
 
 Cập nhật project-memory sau:
 - User approve suppression
 - User fix finding
 - User change scan scope
 - User select compliance target
+- User make ANY configuration decision
+
+## What Goes Where (CRITICAL — tránh loạn)
+
+| Thông tin | File | Khi nào ghi |
+|-----------|------|-------------|
+| Scan results (raw) | `results_json.json` | Mỗi scan (overwrite) |
+| Scan history + delta | `tracking.md` | Mỗi scan (APPEND) |
+| Config decisions | `project-memory.md` | Khi user quyết định |
+| Suppressions + justification | `project-memory.md` | Khi suppress |
+| Remediation plan | `.checkov-reports/remediation-plan.md` | Sau analyze (nếu user yêu cầu) |
+| Tech debt register | `.checkov-reports/tech-debt.md` | Khi baseline lock (nếu user yêu cầu) |
+| Scan config | `.checkov.yaml` | Lần đầu setup |
+| Baseline lock | `.checkov.baseline` | Khi user approve baseline |
+| Command log | `scan-log.txt` | Mỗi scan (overwrite) |
+
+### Quy tắc tránh loạn:
+1. **tracking.md** = CHỈ facts (scan number, counts, delta) — KHÔNG có decisions
+2. **project-memory.md** = CHỈ decisions + config — KHÔNG có scan results
+3. **remediation-plan.md** = CHỈ action items — KHÔNG có history
+4. **KHÔNG duplicate** thông tin giữa files
+5. **Session resumption**: đọc project-memory TRƯỚC → tracking SAU

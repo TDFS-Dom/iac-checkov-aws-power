@@ -14,6 +14,8 @@ Khi user dùng ngôn ngữ tự nhiên, route intent theo bảng sau. Đây là 
 | Tạo baseline / lock hiện trạng | `baseline` | `checkov-aws-scan.md` |
 | Suppress / bỏ qua check | `suppress` | `secops-contract.md` (Overwrite Protection) |
 | Report / báo cáo | `report` | `checkov-aws-compliance.md` |
+| Tạo remediation plan / plan fix | `remediation-plan` | Generate from results + template |
+| Tạo tech debt / debt register | `tech-debt` | Generate from baseline + template |
 | Scan lại / re-scan | `plan` → `scan` | `checkov-aws-scan.md` |
 | Custom policy / tạo rule riêng | `custom-policy` | `checkov-aws-compliance.md` |
 | So sánh / delta / thay đổi gì | `delta` | Inspect tracking.md |
@@ -42,6 +44,8 @@ Khi ambiguous:
 | Delta / so sánh / thay đổi | delta (so sánh 2 scans) |
 | CIS / PCI / HIPAA / SOC2 | compliance {framework} |
 | Custom rule / policy riêng | custom-policy |
+| Plan fix / ưu tiên / roadmap | remediation-plan |
+| Tech debt / debt / nợ kỹ thuật | tech-debt |
 
 ## Display Format
 
