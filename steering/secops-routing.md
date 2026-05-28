@@ -6,7 +6,7 @@ Khi user dùng ngôn ngữ tự nhiên, route intent theo bảng sau. Đây là 
 
 | User nói... | Route to | Load steering |
 |---|---|---|
-| Scan toàn bộ dự án / scan full / quét hết | `plan` → `scan` | `checkov-aws-scan.md` |
+| Scan toàn bộ dự án / scan full / quét hết | `plan` → `scan` → `report` | `checkov-aws-scan.md` |
 | Scan Terraform / quét IaC / check security | `plan` → `scan` | `checkov-aws-scan.md` |
 | Kiểm tra compliance / CIS / PCI / HIPAA | `compliance` | `checkov-aws-compliance.md` |
 | Fix finding / sửa lỗi {CHECK_ID} | `fix` | `checkov-aws-scan.md` (Phase 5) |
@@ -34,7 +34,7 @@ Khi ambiguous:
 
 | User nói | Agent hiểu |
 |---|---|
-| Scan toàn bộ dự án / scan full / quét hết | plan → scan (full project) |
+| Scan toàn bộ dự án / scan full / quét hết | plan → scan → full report |
 | Quét / scan / check | plan → scan |
 | An toàn không? / secure? | plan → scan → analyze |
 | Có lỗi gì? / findings? | analyze (nếu có results) hoặc scan (nếu chưa) |
