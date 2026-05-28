@@ -1,6 +1,6 @@
 # Scan Summary — #{scan_number}
 
-> **SEVERITY LOOKUP (BẮT BUỘC):** Mỗi finding's severity PHẢI tra từ `references/aws-checks-full-list.md` (cột Severity). KHÔNG tự classify. Nếu Check ID mới → dùng `references/severity-classification.md`.
+> **SEVERITY LOOKUP (BẮT BUỘC):** Mỗi finding's severity PHẢI tra từ `references/severity-map.md`. KHÔNG tự classify. Nếu Check ID mới → dùng `references/severity-classification.md`.
 
 ## Overview
 

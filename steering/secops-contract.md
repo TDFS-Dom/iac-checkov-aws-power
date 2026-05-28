@@ -112,7 +112,7 @@ baseline: .checkov.baseline
 - KHÔNG dùng `--check` hoặc `--hard-fail-on` khi scan
 - Quét TẤT CẢ 456 checks → phân loại severity SAU
 - Chỉ filter khi user yêu cầu compliance-specific
-- **Severity UNKNOWN**: Checkov OSS thường không có severity metadata → agent lookup `references/aws-checks-full-list.md` (cột Severity) trước. Nếu check mới không có trong list → dùng `references/severity-classification.md` Scoring Matrix.
+- **Severity UNKNOWN**: Checkov OSS thường không có severity metadata → agent lookup `references/severity-map.md` trước. Nếu check mới không có trong list → dùng `references/severity-classification.md` Scoring Matrix.
 
 ### Severity Lookup Rule (BẮT BUỘC — vi phạm = kết quả sai)
 - **MỌI lần classify severity** (generate summary, remediation-plan, tech-debt, hoặc hiển thị cho user) → agent PHẢI đọc file `references/severity-map.md` và tìm Check ID thuộc section nào (CRITICAL/HIGH/MEDIUM/LOW).

@@ -49,15 +49,15 @@
 
 Khi Checkov trả `severity = null` hoặc `UNKNOWN` (phổ biến với Checkov OSS), agent PHẢI classify theo file:
 
-**→ `references/aws-checks-full-list.md`** (456 checks với cột Severity — lookup TRƯỚC TIÊN)
+**→ `references/severity-map.md`** (456 checks grouped by severity — compact lookup)
 **→ `references/severity-classification.md`** (Scoring Matrix — chỉ dùng cho checks MỚI không có trong list)
 
 Agent PHẢI:
-1. Đọc `references/aws-checks-full-list.md` → tìm Check ID → lấy severity từ cột Severity
+1. Đọc `references/severity-map.md` → tìm Check ID thuộc section nào (CRITICAL/HIGH/MEDIUM/LOW)
 2. Nếu Check ID KHÔNG có trong file (check mới) → đọc `references/severity-classification.md` → dùng Scoring Matrix
 3. KHÔNG tự classify theo cảm tính — MỌI classification phải trace được tới 1 trong 2 files trên
 
-GHI NOTE ở đầu remediation-plan: "Severity lookup from `references/aws-checks-full-list.md` (Checkov OSS does not provide severity metadata)"
+GHI NOTE ở đầu remediation-plan: "Severity lookup from `references/severity-map.md` (Checkov OSS does not provide severity metadata)"
 
 ---
 
@@ -165,8 +165,8 @@ GHI NOTE ở đầu remediation-plan: "Severity lookup from `references/aws-chec
 
 ### CRITICAL — Severity UNKNOWN Handling:
 - Checkov OSS (free) KHÔNG có severity metadata cho hầu hết checks
-- Agent PHẢI lookup `references/aws-checks-full-list.md` (cột Severity) cho mỗi Check ID. Nếu check mới → dùng `references/severity-classification.md` Scoring Matrix.
-- GHI NOTE ở đầu file: "Severity lookup from `references/aws-checks-full-list.md` (Checkov OSS does not provide severity metadata)"
+- Agent PHẢI lookup `references/severity-map.md` (cột Severity) cho mỗi Check ID. Nếu check mới → dùng `references/severity-classification.md` Scoring Matrix.
+- GHI NOTE ở đầu file: "Severity lookup from `references/severity-map.md` (Checkov OSS does not provide severity metadata)"
 - KHÔNG để cả findings trong "UNKNOWN" — PHẢI phân loại
 
 ---

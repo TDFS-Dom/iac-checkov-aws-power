@@ -73,9 +73,9 @@ Agent classify bằng cách đánh giá finding trên 2 trục:
 
 ## Pre-computed Mappings
 
-**→ Xem `references/aws-checks-full-list.md`** — file này chứa severity cho TẤT CẢ 456 checks (cột Severity).
+**→ Xem `references/severity-map.md`** — file này chứa severity cho TẤT CẢ 456 checks (cột Severity).
 
-Agent tra severity bằng cách lookup Check ID trong `aws-checks-full-list.md`. KHÔNG cần bảng riêng ở đây.
+Agent tra severity bằng cách lookup Check ID trong `severity-map.md`. KHÔNG cần bảng riêng ở đây.
 
 ### Justified Deviations từ AWS Security Hub
 
@@ -216,7 +216,7 @@ Nếu một finding không match bất kỳ tiêu chí cụ thể nào ở trên
 ## Decision Tree (cho agent khi classify)
 
 ```
-1. Check ID có trong `references/aws-checks-full-list.md`? → dùng severity từ cột Severity (456 checks)
+1. Check ID có trong `references/severity-map.md`? → dùng severity từ cột Severity (456 checks)
 2. Check ID mới (chưa có trong list)? → dùng Scoring Matrix (Exploitability × Impact) ở trên
 3. Vẫn không xác định được? → check_name keyword pattern match (xem bảng bên dưới)
 4. Vẫn không match? → resource type fallback table
@@ -225,7 +225,7 @@ Nếu một finding không match bất kỳ tiêu chí cụ thể nào ở trên
 
 **KHÔNG BAO GIỜ để finding ở UNKNOWN** — mọi finding PHẢI được classify vào 1 trong 4 levels.
 
-> `aws-checks-full-list.md` là lookup table hoàn chỉnh. Scoring Matrix + Fallback rules chỉ dùng khi Checkov release checks MỚI chưa có trong list.
+> `severity-map.md` là lookup table hoàn chỉnh. Scoring Matrix + Fallback rules chỉ dùng khi Checkov release checks MỚI chưa có trong list.
 
 ---
 

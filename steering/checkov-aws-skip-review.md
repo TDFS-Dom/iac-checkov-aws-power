@@ -52,7 +52,7 @@ Cho mỗi skip found:
 1. Check nếu `check_id` có trong latest scan `results.json` → `skipped_checks[]`
 2. Check nếu resource vẫn tồn tại (file + line still valid)
 3. Check nếu check_id vẫn còn relevant (Checkov version compatibility)
-4. Tra severity của check_id từ `references/aws-checks-full-list.md` (cột Severity). Nếu check mới không có trong list → dùng `references/severity-classification.md` Scoring Matrix. Dùng cho output report.
+4. Tra severity của check_id từ `references/severity-map.md`. Nếu check mới không có trong list → dùng `references/severity-classification.md` Scoring Matrix. Dùng cho output report.
 
 ### Step 4: Evaluate — Logic Review
 

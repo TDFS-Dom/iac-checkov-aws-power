@@ -49,7 +49,7 @@ Gom TẤT CẢ per-scan artifacts + state thành 1 document có cấu trúc:
 ← Lấy từ: plan.md
 
 ## Appendix B: Severity Classification
-← Lấy từ: `references/aws-checks-full-list.md` (456 checks + cột Severity) + `references/severity-classification.md` (Scoring Matrix cho checks mới)
+← Lấy từ: `references/severity-map.md` (456 checks + cột Severity) + `references/severity-classification.md` (Scoring Matrix cho checks mới)
 ```
 
 ### Source files → Document sections mapping
@@ -65,7 +65,7 @@ Gom TẤT CẢ per-scan artifacts + state thành 1 document có cấu trúc:
 | Scan History | `state/tracking.md` | Timeline + Remediation Log |
 | Project Context | `state/project-memory.md` | Context + Patterns + Decisions |
 | Scan Plan | `scans/{NNN}/plan.md` | Appendix |
-| Classification Rules | `references/aws-checks-full-list.md` + `references/severity-classification.md` | Appendix — lookup table + scoring matrix |
+| Classification Rules | `references/severity-map.md` + `references/severity-classification.md` | Appendix — lookup table + scoring matrix |
 
 ---
 
