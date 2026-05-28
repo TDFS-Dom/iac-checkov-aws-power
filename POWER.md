@@ -74,18 +74,24 @@ Tôi muốn suppress CKV_AWS_17 cho dev environment — đánh giá impact
 ```
 {project}/
 ├── .checkov-reports/
-│   ├── tracking.md              # Scan history + remediation log (append-only)
-│   ├── project-memory.md        # Decisions, suppressions, patterns
-│   ├── results_json.json        # Latest scan results (JSON)
-│   ├── results_cli.txt          # Latest scan results (readable)
-│   ├── scan-log.txt             # Command execution log
-│   ├── compliance-report.md     # Compliance report (khi user request)
-│   └── plans/
-│       ├── plan-001.md          # Scan plans đã execute
-│       └── plan-002.md
-├── .checkov.yaml                # Config file
-├── .checkov.baseline            # Baseline (khi user tạo)
-└── custom_checks/               # Custom policies (nếu có)
+│   ├── state/
+│   │   ├── tracking.md          # Scan timeline (append-only)
+│   │   └── project-memory.md    # Decisions, config, suppressions
+│   ├── scans/
+│   │   ├── 001/                 # Per-scan self-contained snapshot
+│   │   │   ├── plan.md
+│   │   │   ├── metadata.md
+│   │   │   ├── results.json
+│   │   │   ├── summary.md
+│   │   │   ├── remediation-plan.md
+│   │   │   └── tech-debt.md
+│   │   ├── 002/
+│   │   │   ├── ... (same + delta.md)
+│   │   └── latest.txt           # "002"
+│   └── reports/
+│       └── compliance/
+├── .checkov.yaml
+└── .checkov.baseline
 ```
 
 ## Behavior Rules (Summary)
@@ -141,8 +147,8 @@ checkov -d {target} --framework {fw} --compact -o json -o cli \
 ## Session Continuity
 
 Khi user quay lại (new session):
-1. Đọc `.checkov-reports/tracking.md` → scan history
-2. Đọc `.checkov-reports/project-memory.md` → decisions
+1. Đọc `.checkov-reports/state/tracking.md` → scan history
+2. Đọc `.checkov-reports/state/project-memory.md` → decisions
 3. Báo context + recommend next action
 
 ```

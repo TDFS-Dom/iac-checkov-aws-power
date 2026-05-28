@@ -223,7 +223,7 @@ checkov -d ./terraform \
   --branch main
 
 # Parse findings by severity
-cat compliance-report/results_json.json | \
+cat .checkov-reports/scans/$(cat .checkov-reports/scans/latest.txt)/results.json | \
   jq '[.results.failed_checks[] | {id: .check_id, severity: .severity, resource: .resource}] | group_by(.severity)'
 ```
 

@@ -20,7 +20,7 @@ plan → scan → analyze → track → remediate → verify → report
 | Phase | Command | Output |
 |---|---|---|
 | 1. Plan | `plan` | scan-plan.md |
-| 2. Scan | `scan` | results_json.json + scan-log.txt |
+| 2. Scan | `scan` | scans/{NNN}/results.json |
 | 3. Analyze | `analyze` | Summary tables + severity breakdown |
 | 4. Track | `track` | tracking.md (append scan entry) |
 | 5. Remediate | `fix` | Modified .tf/.yaml files |
@@ -69,7 +69,7 @@ baseline: .checkov.baseline
 | Command | Requires | Outputs |
 |---|---|---|
 | plan | IaC files detected | scan-plan.md |
-| scan | plan approved + checkov installed | results_json.json |
+| scan | plan approved + checkov installed | scans/{NNN}/results.json |
 | analyze | scan results exist | Summary (display only) |
 | track | scan results exist | tracking.md (append) |
 | fix {CHECK_ID} | scan results + finding in JSON | Modified source file |
@@ -146,7 +146,7 @@ baseline: .checkov.baseline
 
 ## Project Memory
 
-File `.checkov-reports/project-memory.md` lưu trữ:
+File `state/project-memory.md` lưu trữ:
 - Scan scope decisions (which dirs, which frameworks)
 - Suppression decisions (why skip specific checks)
 - Known false positives (approved suppressions)

@@ -39,7 +39,7 @@ python3 --version
 
 ```bash
 # Có tracking file từ lần scan trước không?
-test -f .checkov-reports/tracking.md && echo "EXISTING_TRACKING" || echo "FIRST_SCAN"
+test -f .checkov-reports/state/tracking.md && echo "EXISTING_TRACKING" || echo "FIRST_SCAN"
 
 # Có baseline không?
 test -f .checkov.baseline && echo "HAS_BASELINE" || echo "NO_BASELINE"
@@ -165,13 +165,13 @@ checkov -d {target_dir} --check CKV_AWS_19,CKV_AWS_7,CKV_AWS_61,CKV_AWS_20,CKV_A
 
 ### Step 3.1: Parse Results
 
-Đọc `.checkov-reports/scans/{NNN}/results_json.json` và extract:
+Đọc `.checkov-reports/scans/{NNN}/results.json` và extract:
 
 ```bash
 # Summary counts
 python3 -c "
 import json
-with open('.checkov-reports/scans/$NEXT/results_json.json') as f:
+with open('.checkov-reports/scans/$NEXT/results.json') as f:
     data = json.load(f)
 s = data.get('summary', {})
 print(f'passed={s.get(\"passed\",0)}')
@@ -184,7 +184,7 @@ print(f'skipped={s.get(\"skipped\",0)}')
 # Findings by severity
 python3 -c "
 import json
-with open('.checkov-reports/results_json.json') as f:
+with open('.checkov-reports/results.json') as f:
     data = json.load(f)
 failed = data.get('results', {}).get('failed_checks', [])
 sev = {}
@@ -201,7 +201,7 @@ for k in ['CRITICAL','HIGH','MEDIUM','LOW','UNKNOWN']:
 # Top findings list
 python3 -c "
 import json
-with open('.checkov-reports/results_json.json') as f:
+with open('.checkov-reports/results.json') as f:
     data = json.load(f)
 failed = data.get('results', {}).get('failed_checks', [])
 # Sort by severity
@@ -267,7 +267,7 @@ Sau mỗi scan, tạo các files trong `scans/{NNN}/`:
 
 ### Step 4.3: Delta Calculation
 
-So sánh với scan trước (`scans/{NNN-1}/results_json.json`):
+So sánh với scan trước (`scans/{NNN-1}/results.json`):
 - Tổng failed: +/- bao nhiêu
 - New findings (có trong current, không có trong previous)
 - Resolved findings (có trong previous, không có trong current)
@@ -284,7 +284,7 @@ So sánh với scan trước (`scans/{NNN-1}/results_json.json`):
 LATEST=$(cat .checkov-reports/scans/latest.txt)
 python3 -c "
 import json
-with open(f'.checkov-reports/scans/$LATEST/results_json.json') as f:
+with open(f'.checkov-reports/scans/$LATEST/results.json') as f:
     data = json.load(f)
 for f in data.get('results',{}).get('failed_checks',[]):
     if f['check_id'] == '{CHECK_ID}':

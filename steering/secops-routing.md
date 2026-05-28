@@ -67,7 +67,7 @@ Khi user nói "tiếp tục" hoặc "bước tiếp theo":
 1. Inspect `.checkov-reports/` directory
 2. Check which artifacts exist:
    - `tracking.md` exists? → có history
-   - `results_json.json` exists? → có scan gần nhất
+   - `scans/latest.txt` exists? → có scan gần nhất
    - `.checkov.baseline` exists? → đã baseline
    - Pending CRITICAL/HIGH trong tracking? → suggest fix
 3. Recommend next action theo priority:
