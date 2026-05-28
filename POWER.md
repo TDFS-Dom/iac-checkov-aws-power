@@ -39,6 +39,7 @@ plan → scan → analyze → track → remediate → verify → report
 ### On-demand (load per active command)
 - Running scan workflow → `checkov-aws-scan.md`
 - Compliance analysis → `checkov-aws-compliance.md`
+- Reviewing skip/suppression logic + outdated skips → `checkov-aws-skip-review.md`
 - Detecting next step → `secops-contract.md` (Next Step section)
 - Token budget management → `secops-token-budget.md`
 - Export report to .docx → `docx-export.md`
@@ -63,6 +64,16 @@ Fix CKV_AWS_93 trong s3.tf
 ### Compliance report
 ```
 Report compliance CIS AWS cho infrastructure hiện tại
+```
+
+### Review skip logic
+```
+Review skip — kiểm tra logic các checkov:skip trong code
+```
+
+### Check outdated suppressions
+```
+Review outdate — tìm skip hết hạn hoặc không còn valid
 ```
 
 ### Đánh giá thay đổi
@@ -190,6 +201,14 @@ Pending: 5 (0 CRITICAL, 3 HIGH, 2 MEDIUM)
 ---
 
 ## Changelog
+
+### v1.2.0 (2026-05-28)
+- Add `checkov-aws-skip-review.md` steering — review logic + detect outdated suppressions
+- New commands: `review-skip`, `review-outdate`
+- Suppress command enhanced: severity-gated validation, mandatory justification
+- Known false positive auto-detection (GWLB, module SGs, EIP NAT, Lambda monitoring)
+- Quarterly review reminder mechanism
+- Now 7 steering files (2 always-loaded + 5 on-demand)
 
 ### v1.1.0 (2026-05-28)
 - Add `docx-export.md` steering (export security reports to .docx)

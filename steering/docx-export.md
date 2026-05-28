@@ -31,13 +31,18 @@ Gom TẤT CẢ per-scan artifacts + state thành 1 document có cấu trúc:
 ## 4. Tech Debt Register
 ← Lấy từ: tech-debt.md (Accepted Debt + Needs Review + Suppressions)
 
-## 5. Delta (nếu scan #002+)
+## 5. Suppression Review (nếu có)
+← Lấy từ: kết quả `review-skip` gần nhất (nếu đã chạy)
+← Nội dung: Valid/Invalid/Outdated suppression summary + detail table
+← Nếu chưa chạy review-skip → SKIP section này (không hiển thị)
+
+## 6. Delta (nếu scan #002+)
 ← Lấy từ: delta.md (Summary + New/Resolved tables)
 
-## 6. Scan History
+## 7. Scan History
 ← Lấy từ: state/tracking.md (Timeline table)
 
-## 7. Project Context
+## 8. Project Context
 ← Lấy từ: state/project-memory.md (Context + Known Patterns + Decisions)
 
 ## Appendix A: Scan Plan
@@ -55,6 +60,7 @@ Gom TẤT CẢ per-scan artifacts + state thành 1 document có cấu trúc:
 | Scan Context | `scans/{NNN}/metadata.md` | Full table |
 | Findings Detail | `scans/{NNN}/remediation-plan.md` | ALL sections (P0→P3) |
 | Tech Debt | `scans/{NNN}/tech-debt.md` | Full content |
+| Suppression Review | `state/project-memory.md` → "Skip Review History" | Chỉ khi đã chạy `review-skip`. Include summary table + detail per-skip |
 | Delta | `scans/{NNN}/delta.md` | Chỉ khi scan #002+ |
 | Scan History | `state/tracking.md` | Timeline + Remediation Log |
 | Project Context | `state/project-memory.md` | Context + Patterns + Decisions |

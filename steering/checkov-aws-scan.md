@@ -285,6 +285,24 @@ Trình user theo format bảng:
 3. Consider creating baseline for existing MEDIUM/LOW findings
 ```
 
+### Step 3.3: Skip Summary (nếu có skipped checks)
+
+Nếu `skipped > 0` trong results.json → hiển thị tóm tắt ngắn trong Analyze output:
+
+```markdown
+### ⏭️ Skipped Checks ({N} suppressions trong code)
+| # | Check ID | Resource | File | Justification |
+|---|----------|----------|------|---------------|
+| 1 | {id} | {resource} | {file}:{line} | {skip comment text} |
+
+💡 Chạy `review-skip` để đánh giá chi tiết logic và chất lượng các suppressions.
+```
+
+**Logic**: Parse `results.skipped_checks[]` từ JSON — mỗi item có `check_id`, `resource`, `file_path`, `suppress_comment`.
+Hiển thị TỐI ĐA 10 rows. Nếu >10 → "... và {N-10} khác. Dùng `review-skip` để xem toàn bộ."
+
+**KHÔNG block pipeline** — chỉ hiển thị informational rồi tiếp tục Phase 4 bình thường.
+
 ---
 
 ## PHASE 4: TRACK

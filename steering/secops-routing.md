@@ -13,7 +13,10 @@ Khi user dùng ngôn ngữ tự nhiên, route intent theo bảng sau. Đây là 
 | Tiếp tục / bước tiếp theo | `next` | Inspect artifacts → recommend |
 | Trạng thái / status / đang ở đâu | `status` | Inspect `.checkov-reports/` |
 | Tạo baseline / lock hiện trạng | `baseline` | `checkov-aws-scan.md` |
-| Suppress / bỏ qua check | `suppress` | `secops-contract.md` (Overwrite Protection) |
+| Suppress / bỏ qua check | `suppress` | `checkov-aws-skip-review.md` (Suppress Command Enhancement) |
+| Review skip / review suppression / kiểm tra skip | `review-skip` | `checkov-aws-skip-review.md` |
+| Check outdated skip / review outdate / skip hết hạn | `review-outdate` | `checkov-aws-skip-review.md` |
+| Audit suppressions / suppression quality | `review-skip` | `checkov-aws-skip-review.md` |
 | Report / báo cáo | `report` | `checkov-aws-compliance.md` |
 | Tạo remediation plan / plan fix | `remediation-plan` | Generate from results + template |
 | Tạo tech debt / debt register | `tech-debt` | Generate from results.json + template |
@@ -41,6 +44,8 @@ Khi ambiguous:
 | Có lỗi gì? / findings? | analyze (nếu có results) hoặc scan (nếu chưa) |
 | Fix / sửa / remediate | fix (cần CHECK_ID) |
 | Bỏ qua / suppress / skip | suppress |
+| Review skip / kiểm tra skip / audit skip | review-skip |
+| Outdate / hết hạn / expired skip / review outdate | review-outdate |
 | Tạo baseline | baseline |
 | Báo cáo / report / tổng hợp | report |
 | Tiếp tục / next / làm gì tiếp | next |
