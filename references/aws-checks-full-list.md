@@ -33,7 +33,7 @@ Generated from: checkov v3.2.526 (Terraform + CloudFormation)
 | CKV_AWS_19 | Ensure all data stored in the S3 bucket is securely encrypted at rest | HIGH |
 | CKV_AWS_20 | S3 Bucket has an ACL defined which allows public READ access. | CRITICAL |
 | CKV_AWS_21 | Ensure all data stored in the S3 bucket have versioning enabled | MEDIUM |
-| CKV_AWS_22 | Ensure SageMaker Notebook is encrypted at rest using KMS CMK | HIGH |
+| CKV_AWS_22 | Ensure SageMaker Notebook is encrypted at rest using KMS CMK | LOW |
 | CKV_AWS_23 | Ensure every security group and rule has a description | LOW |
 | CKV_AWS_24 | Ensure no security groups allow ingress from 0.0.0.0:0 to port 22 | CRITICAL |
 | CKV_AWS_25 | Ensure no security groups allow ingress from 0.0.0.0:0 to port 3389 | CRITICAL |
@@ -143,7 +143,7 @@ Generated from: checkov v3.2.526 (Terraform + CloudFormation)
 | CKV_AWS_133 | Ensure that RDS instances has backup policy | MEDIUM |
 | CKV_AWS_134 | Ensure that Amazon ElastiCache Redis clusters have automatic backup turned on | MEDIUM |
 | CKV_AWS_135 | Ensure that EC2 is EBS optimized | MEDIUM |
-| CKV_AWS_136 | Ensure that ECR repositories are encrypted using KMS | MEDIUM |
+| CKV_AWS_136 | Ensure that ECR repositories are encrypted using KMS | LOW |
 | CKV_AWS_137 | Ensure that Elasticsearch is configured inside a VPC | MEDIUM |
 | CKV_AWS_138 | Ensure that ELB is cross-zone-load-balancing enabled | MEDIUM |
 | CKV_AWS_139 | Ensure that RDS clusters have deletion protection enabled | MEDIUM |
@@ -152,7 +152,7 @@ Generated from: checkov v3.2.526 (Terraform + CloudFormation)
 | CKV_AWS_142 | Ensure that Redshift cluster is encrypted by KMS | MEDIUM |
 | CKV_AWS_143 | Ensure that S3 bucket has lock configuration enabled by default | HIGH |
 | CKV_AWS_144 | Ensure that S3 bucket has cross-region replication enabled | MEDIUM |
-| CKV_AWS_145 | Ensure that S3 buckets are encrypted with KMS by default | MEDIUM |
+| CKV_AWS_145 | Ensure that S3 buckets are encrypted with KMS by default | LOW |
 | CKV_AWS_146 | Ensure that RDS database cluster snapshot is encrypted | MEDIUM |
 | CKV_AWS_147 | Ensure that CodeBuild projects are encrypted using CMK | LOW |
 | CKV_AWS_148 | Ensure no default VPC is planned to be provisioned | MEDIUM |
@@ -172,7 +172,7 @@ Generated from: checkov v3.2.526 (Terraform + CloudFormation)
 | CKV_AWS_163 | Ensure ECR image scanning on push is enabled | MEDIUM |
 | CKV_AWS_164 | Ensure Transfer Server is not exposed publicly. | CRITICAL |
 | CKV_AWS_165 | Ensure DynamoDB point in time recovery (backup) is enabled for global tables | MEDIUM |
-| CKV_AWS_166 | Ensure Backup Vault is encrypted at rest using KMS CMK | HIGH |
+| CKV_AWS_166 | Ensure Backup Vault is encrypted at rest using KMS CMK | LOW |
 | CKV_AWS_167 | Ensure Glacier Vault access policy is not public by only allowing specific services or principals to access it | MEDIUM |
 | CKV_AWS_168 | Ensure SQS queue policy is not public by only allowing specific services or principals to access it | MEDIUM |
 | CKV_AWS_169 | Ensure SNS topic policy is not public by only allowing specific services or principals to access it | MEDIUM |
@@ -206,7 +206,7 @@ Generated from: checkov v3.2.526 (Terraform + CloudFormation)
 | CKV_AWS_198 | Ensure no aws_db_security_group resources exist | MEDIUM |
 | CKV_AWS_199 | Ensure Image Builder Distribution Configuration encrypts AMI's using KMS - a customer managed Key (CMK) | LOW |
 | CKV_AWS_200 | Ensure that Image Recipe EBS Disk are encrypted with CMK | LOW |
-| CKV_AWS_201 | Ensure MemoryDB is encrypted at rest using KMS CMKs | HIGH |
+| CKV_AWS_201 | Ensure MemoryDB is encrypted at rest using KMS CMKs | LOW |
 | CKV_AWS_202 | Ensure MemoryDB data is encrypted in transit | HIGH |
 | CKV_AWS_203 | Ensure resource is encrypted by KMS using a customer managed Key (CMK) | LOW |
 | CKV_AWS_204 | Ensure AMIs are encrypted using KMS CMKs | LOW |
@@ -217,7 +217,7 @@ Generated from: checkov v3.2.526 (Terraform + CloudFormation)
 | CKV_AWS_209 | Ensure MQ broker encrypted by KMS using a customer managed Key (CMK) | LOW |
 | CKV_AWS_210 | Batch job does not define a privileged container | MEDIUM |
 | CKV_AWS_211 | Ensure RDS uses a modern CaCert | MEDIUM |
-| CKV_AWS_212 | Ensure DMS replication instance is encrypted by KMS using a customer managed Key (CMK) | MEDIUM |
+| CKV_AWS_212 | Ensure DMS replication instance is encrypted by KMS using a customer managed Key (CMK) | LOW |
 | CKV_AWS_213 | Ensure ELB Policy uses only secure protocols | MEDIUM |
 | CKV_AWS_214 | Ensure AppSync API Cache is encrypted at rest | HIGH |
 | CKV_AWS_215 | Ensure AppSync API Cache is encrypted in transit | HIGH |
@@ -250,7 +250,7 @@ Generated from: checkov v3.2.526 (Terraform + CloudFormation)
 | CKV_AWS_242 | Ensure MWAA environment has scheduler logs enabled | MEDIUM |
 | CKV_AWS_243 | Ensure MWAA environment has worker logs enabled | MEDIUM |
 | CKV_AWS_244 | Ensure MWAA environment has webserver logs enabled | MEDIUM |
-| CKV_AWS_245 | Ensure replicated backups are encrypted at rest using KMS CMKs | HIGH |
+| CKV_AWS_245 | Ensure replicated backups are encrypted at rest using KMS CMKs | LOW |
 | CKV_AWS_246 | Ensure RDS Cluster activity streams are encrypted using KMS CMKs | LOW |
 | CKV_AWS_247 | Ensure all data stored in the Elasticsearch is encrypted with a CMK | LOW |
 | CKV_AWS_248 | Ensure that Elasticsearch is not using the default Security Group | MEDIUM |
