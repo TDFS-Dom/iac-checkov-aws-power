@@ -63,13 +63,16 @@ Khi Checkov trả `severity = null` hoặc `UNKNOWN` (phổ biến với Checkov
 |---|----------|---------|----------|------|------|--------|
 | 1 | {CKV_AWS_N} | {check_name} | `{resource}` | `{file_path}` | {line} | ⬚ Open |
 
-**Remediation:** {specific fix guidance}
+> Nếu >5 cùng Check ID, dùng format grouped:
 
-### {Subcategory — e.g., "Network Exposure"} ({N} findings)
+| Check ID | Count | Description |
+|----------|-------|-------------|
+| {CKV_AWS_N} | {N} | {check_name} |
 
-| # | Check ID | Finding | Resource | File | Line | Status |
-|---|----------|---------|----------|------|------|--------|
-| 1 | {CKV_AWS_N} | {check_name} | `{resource}` | `{file_path}` | {line} | ⬚ Open |
+**Affected Resources:**
+1. `{resource_1}` — `{file_path}:{line}` (caller: `{caller_file if module}`)
+2. `{resource_2}` — `{file_path}:{line}`
+3. ...
 
 **Remediation:** {specific fix guidance}
 
@@ -130,9 +133,17 @@ Khi Checkov trả `severity = null` hoặc `UNKNOWN` (phổ biến với Checkov
 - Sign-off — chỉ khi user yêu cầu formal approval flow
 
 ### Grouping Rules:
-- Nếu >5 findings cùng Check ID → group thành 1 row: "{Check ID} × {N} instances"
-- Nếu findings cùng file + cùng module → group theo module
+- Nếu >5 findings cùng Check ID → group thành 1 header row + detail list bên dưới
+- Detail list format (ngay sau group header):
+  ```
+  **Affected Resources:**
+  1. `{resource}` — `{file_path}:{line}`
+  2. `{resource}` — `{file_path}:{line}`
+  ```
+- Nếu ≤5 findings cùng Check ID → list từng row riêng (không group)
+- Nếu findings cùng file + cùng module → group theo module, vẫn list per-resource
 - Subcategories: IAM, Network, Storage, Compute, Logging, Other
+- **KHÔNG BAO GIỜ** chỉ ghi "8 findings" mà không liệt kê resource nào + file:line nào
 
 ### CRITICAL — Severity UNKNOWN Handling:
 - Checkov OSS (free) KHÔNG có severity metadata cho hầu hết checks

@@ -120,6 +120,20 @@ p3 = [f for f in failed if classify_priority(f) == 'P3']
 
 # Group findings by subcategory within each priority
 # Subcategories: IAM, Network, Storage, Compute, Logging, Other
+
+# CRITICAL: For each group, ALWAYS extract per-resource detail:
+for check_id, group in grouped_by_check_id.items():
+    # Header row: Check ID | Count | Description
+    # Then list EVERY resource:
+    for finding in group:
+        # resource = finding['resource']
+        # file = finding['file_path']
+        # line = finding['file_line_range'][0]
+        # caller = finding.get('caller_file_path', None)  # for module instances
+        pass
+
+# NEVER just write "8 findings" without listing WHERE they are
+# Each finding has unique resource + file + line — MUST be shown
 ```
 
 ## Cách fill delta.md
@@ -197,7 +211,7 @@ def suggest_justification(finding):
 
 1. **PHẢI chạy parse logic** trên results.json — KHÔNG hardcode values
 2. **Remediation plan PHẢI liệt kê TẤT CẢ findings** — không chỉ top 3
-3. **Nếu >20 findings cùng severity** → group bằng "... và {N} items khác" ở cuối table
+3. **Nếu >5 findings cùng Check ID** → group header + list ALL affected resources with file:line (KHÔNG truncate, KHÔNG "... và N items khác")
 4. **File path phải giữ nguyên** từ JSON (relative path) — KHÔNG modify
 5. **Line = first element** của `file_line_range` array
 6. **Severity mapping**: CRITICAL→P0, HIGH→P1, MEDIUM→P2, LOW→P3
