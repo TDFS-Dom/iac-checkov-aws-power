@@ -18,10 +18,9 @@
 
 ## P0 — CRITICAL (Fix Immediately)
 
-| # | Check ID | Finding | File | Owner | ETA | Status |
-|---|----------|---------|------|-------|-----|--------|
-| 1 | CKV_AWS_{N} | {description} | {file:line} | {person} | {date} | ⬚ Open |
-| 2 | CKV_AWS_{N} | {description} | {file:line} | {person} | {date} | ⬚ Open |
+| # | Check ID | Finding | Resource | File | Line | Owner | ETA | Status |
+|---|----------|---------|----------|------|------|-------|-----|--------|
+| 1 | CKV_AWS_{N} | {description} | `aws_{type}.{name}` | `{path/to/file.tf}` | {N} | {person} | {date} | ⬚ Open |
 
 **Definition of Done**: Re-scan PASS + PR merged + no regression
 
@@ -29,29 +28,25 @@
 
 ## P1 — HIGH (This Sprint)
 
-| # | Check ID | Finding | File | Owner | Sprint | Status |
-|---|----------|---------|------|-------|--------|--------|
-| 1 | CKV_AWS_{N} | {description} | {file:line} | {person} | S{N} | ⬚ Open |
-| 2 | CKV_AWS_{N} | {description} | {file:line} | {person} | S{N} | ⬚ Open |
-| 3 | CKV_AWS_{N} | {description} | {file:line} | {person} | S{N} | ⬚ Open |
+| # | Check ID | Finding | Resource | File | Line | Owner | Sprint | Status |
+|---|----------|---------|----------|------|------|-------|--------|--------|
+| 1 | CKV_AWS_{N} | {description} | `aws_{type}.{name}` | `{path/to/file.tf}` | {N} | {person} | S{N} | ⬚ Open |
 
 ---
 
 ## P2 — MEDIUM (This Quarter)
 
-| # | Check ID | Finding | File | Target Date | Status |
-|---|----------|---------|------|-------------|--------|
-| 1 | CKV_AWS_{N} | {description} | {file:line} | {YYYY-MM} | ⬚ Planned |
-| 2 | CKV_AWS_{N} | {description} | {file:line} | {YYYY-MM} | ⬚ Planned |
+| # | Check ID | Finding | Resource | File | Line | Target Date | Status |
+|---|----------|---------|----------|------|------|-------------|--------|
+| 1 | CKV_AWS_{N} | {description} | `aws_{type}.{name}` | `{path/to/file.tf}` | {N} | {YYYY-MM} | ⬚ Planned |
 
 ---
 
 ## P3 — LOW (Backlog / Accept)
 
-| # | Check ID | Finding | File | Decision |
-|---|----------|---------|------|----------|
-| 1 | CKV_AWS_{N} | {description} | {file:line} | ⬚ Backlog / ⬚ Suppress |
-| 2 | CKV_AWS_{N} | {description} | {file:line} | ⬚ Backlog / ⬚ Suppress |
+| # | Check ID | Finding | Resource | File | Line | Decision |
+|---|----------|---------|----------|------|------|----------|
+| 1 | CKV_AWS_{N} | {description} | `aws_{type}.{name}` | `{path/to/file.tf}` | {N} | ⬚ Backlog / ⬚ Suppress |
 
 ---
 
