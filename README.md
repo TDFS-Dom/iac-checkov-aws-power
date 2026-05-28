@@ -168,9 +168,12 @@ output:
 iac-checkov-aws-power/
 ├── POWER.md                             # Kiro entry point
 ├── README.md                            # Bạn đang đọc
+├── scripts/
+│   └── classify_findings.py             # Severity classification (deterministic)
 ├── references/
-│   ├── aws-checks-full-list.md          # 456 checks + severity column
-│   ├── severity-classification.md       # Scoring matrix + fallback rules
+│   ├── aws-checks-full-list.md          # 456 checks + severity column (full reference)
+│   ├── severity-map.md                  # Compact lookup — script reads this file
+│   ├── severity-classification.md       # Scoring matrix + fallback rules (new checks)
 │   └── templates/                       # Templates cho mọi output
 │       ├── parse-results-guide.md       # JSON→template mapping
 │       ├── directory-structure.md       # Folder rules

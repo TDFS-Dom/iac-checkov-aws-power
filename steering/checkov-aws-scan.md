@@ -175,8 +175,8 @@ mv .checkov-reports/scans/$NEXT/results_json.json .checkov-reports/scans/$NEXT/r
 
 - [ ] `results.json` — renamed từ Checkov output (KHÔNG tự tạo)
 - [ ] `metadata.md` — fill template, ghi scan context (date, scope, duration, version)
-- [ ] `summary.md` — parse results.json → fill TẤT CẢ fields (counts, severity, by-folder, top findings). **SEVERITY: tra `references/severity-map.md` — KHÔNG tự classify.**
-- [ ] `remediation-plan.md` — parse results.json → classify ALL findings by priority (P0→P3), group by subcategory, include remediation guidance. **SEVERITY LOOKUP (BẮT BUỘC):** Cho mỗi finding, đọc `references/severity-map.md` — tìm Check ID thuộc section nào = severity đó. KHÔNG tự classify. Nếu Check ID không có trong file (check mới) → dùng `references/severity-classification.md` Scoring Matrix. **HARD CONSTRAINT: mỗi finding PHẢI có row riêng với resource + file + line. KHÔNG ĐƯỢC chỉ ghi summary "8 findings" mà không liệt kê từng resource. Parse `results.failed_checks[]` → extract từng item.**
+- [ ] `summary.md` — parse `classified.json` → fill TẤT CẢ fields (counts, severity, by-folder, top findings). Severity đã có sẵn trong classified.json — KHÔNG tự classify.
+- [ ] `remediation-plan.md` — parse `classified.json` → group findings by severity (P0=CRITICAL, P1=HIGH, P2=MEDIUM, P3=LOW), include remediation guidance. Severity đã có sẵn — KHÔNG lookup lại. **HARD CONSTRAINT: mỗi finding PHẢI có row riêng với resource + file + line. KHÔNG ĐƯỢC chỉ ghi summary "8 findings" mà không liệt kê từng resource.**
 - [ ] `tech-debt.md` — Level 1 (auto-generate): P2+P3 findings split into Accepted Debt (clear justification), Needs Review (needs decision), Suppression Candidates (false positives). Justifications context-specific, NOT generic.
 - [ ] `delta.md` — so sánh 2 results.json → list new/resolved/unchanged (CHỈ từ scan #002)
 - [ ] `plan.md` — đã tạo trước scan, PHẢI nằm trong folder này
