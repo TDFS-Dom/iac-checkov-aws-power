@@ -75,85 +75,94 @@ Agent classify bằng cách đánh giá finding trên 2 trục:
 
 Agent PHẢI check bảng này TRƯỚC khi dùng ma trận. Nếu Check ID có ở đây → dùng trực tiếp, KHÔNG cần đánh giá ma trận.
 
+> **Cross-reference**: Cột "SH Control" = AWS Security Hub FSBP control ID tương đương.
+> Cột "SH Sev" = severity chính thức từ Security Hub. Dùng làm validation — nếu agent classify khác Security Hub > 1 level → cần justify.
+> Source: [Security Hub controls reference](https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-controls-reference.html)
+
 ### CRITICAL (Exploit: TRIVIAL/LOW × Impact: CATASTROPHIC/SIGNIFICANT)
 
-| Check ID | Check Name | Exploit | Impact | Rationale |
-|----------|-----------|---------|--------|-----------|
-| CKV_AWS_274 | IAM AdministratorAccess policy | LOW | CATASTROPHIC | Cần credentials nhưng = full account takeover |
-| CKV_AWS_62 | IAM full `*:*` admin policy | LOW | CATASTROPHIC | Full admin = game over |
-| CKV_AWS_93 | S3 Block Public Access disabled | TRIVIAL | SIGNIFICANT | Internet direct → data exposed |
-| CKV_AWS_54 | S3 Block Public Policy disabled | TRIVIAL | SIGNIFICANT | Cho phép public policy apply |
-| CKV_AWS_56 | S3 RestrictPublicBuckets disabled | TRIVIAL | SIGNIFICANT | Public bucket accessible |
-| CKV_AWS_24 | SG open 0.0.0.0/0 → port 22 (SSH) | TRIVIAL | SIGNIFICANT | Direct SSH brute-force |
-| CKV_AWS_25 | SG open 0.0.0.0/0 → port 3389 (RDP) | TRIVIAL | SIGNIFICANT | Direct RDP attack |
-| CKV_AWS_41 | Hardcoded credentials in provider | TRIVIAL | CATASTROPHIC | Credentials in code = immediate access |
-| CKV_AWS_46 | Hardcoded secret in Lambda env | TRIVIAL | SIGNIFICANT | Secret exposed in config |
-| CKV_AWS_17 | RDS publicly accessible | TRIVIAL | SIGNIFICANT | Database open to internet |
-| CKV_AWS_9 | Root account without MFA | LOW | CATASTROPHIC | Root = unrestricted |
+| Check ID | Check Name | SH Control | SH Sev | Exploit | Impact |
+|----------|-----------|-----------|--------|---------|--------|
+| CKV_AWS_274 | IAM AdministratorAccess policy | IAM.1 | CRITICAL | LOW | CATASTROPHIC |
+| CKV_AWS_62 | IAM full `*:*` admin policy | IAM.1 | CRITICAL | LOW | CATASTROPHIC |
+| CKV_AWS_93 | S3 Block Public Access disabled | S3.2/S3.3 | CRITICAL | TRIVIAL | SIGNIFICANT |
+| CKV_AWS_54 | S3 Block Public Policy disabled | S3.1 | MEDIUM* | TRIVIAL | SIGNIFICANT |
+| CKV_AWS_56 | S3 RestrictPublicBuckets disabled | S3.1 | MEDIUM* | TRIVIAL | SIGNIFICANT |
+| CKV_AWS_24 | SG open 0.0.0.0/0 → port 22 (SSH) | EC2.19 | HIGH | TRIVIAL | SIGNIFICANT |
+| CKV_AWS_25 | SG open 0.0.0.0/0 → port 3389 (RDP) | EC2.19 | HIGH | TRIVIAL | SIGNIFICANT |
+| CKV_AWS_41 | Hardcoded credentials in provider | — | — | TRIVIAL | CATASTROPHIC |
+| CKV_AWS_46 | Hardcoded secret in Lambda env | — | — | TRIVIAL | SIGNIFICANT |
+| CKV_AWS_17 | RDS publicly accessible | RDS.2 | CRITICAL | TRIVIAL | SIGNIFICANT |
+| CKV_AWS_9 | Root account without MFA | IAM.6 | CRITICAL | LOW | CATASTROPHIC |
+
+> *CKV_AWS_54/56 map tới S3.1 (account-level, MEDIUM trong SH) nhưng IaC context = bucket-level exposure → chúng ta classify CRITICAL vì nếu disable = bucket exposed trực tiếp. Đây là justified deviation từ SH.
 
 ### HIGH (Exploit: LOW/MODERATE × Impact: SIGNIFICANT/MODERATE)
 
-| Check ID | Check Name | Exploit | Impact | Rationale |
-|----------|-----------|---------|--------|-----------|
-| CKV_AWS_111 | IAM write without constraints | LOW | SIGNIFICANT | Wildcard write = data modification |
-| CKV_AWS_109 | IAM permissions management exposure | LOW | SIGNIFICANT | Can grant self more permissions |
-| CKV_AWS_356 | IAM `*` resource for restrictable actions | LOW | SIGNIFICANT | Actions on any resource |
-| CKV_AWS_63 | IAM `*` as statement actions | LOW | SIGNIFICANT | Wildcard actions |
-| CKV_AWS_40 | IAM policy with `*` actions | LOW | SIGNIFICANT | Over-permissive |
-| CKV_AWS_288 | IAM data exfiltration risk | LOW | SIGNIFICANT | Can exfiltrate data |
-| CKV_AWS_289 | IAM permissions management without constraints | LOW | SIGNIFICANT | Privilege escalation path |
-| CKV_AWS_290 | IAM write access without constraints | LOW | SIGNIFICANT | Unrestricted write |
-| CKV_AWS_286 | IAM privilege escalation | LOW | CATASTROPHIC | Escalate to admin → HIGH (not CRITICAL because requires existing creds + specific path) |
-| CKV_AWS_19 | S3 encryption at rest disabled | LOW | SIGNIFICANT | Data readable if accessed |
-| CKV_AWS_7 | EBS not encrypted | LOW | SIGNIFICANT | Disk data exposed |
-| CKV_AWS_16 | RDS storage not encrypted | LOW | SIGNIFICANT | DB data at rest exposed |
-| CKV_AWS_35 | CloudTrail logs not encrypted | MODERATE | SIGNIFICANT | Audit trail tampered |
-| CKV_AWS_20 | S3 SSL not enforced | LOW | MODERATE | Data in transit interceptable |
-| CKV_AWS_2 | ALB not using HTTPS | LOW | MODERATE | Traffic unencrypted (NOT for GWLB) |
-| CKV2_AWS_11 | VPC flow logs not enabled | MODERATE | MODERATE | Blind spot in network visibility |
-| CKV2_AWS_12 | Default SG not restricting traffic | LOW | MODERATE | Unintended access via default SG |
-| CKV_AWS_260 | SG ingress 0.0.0.0/0 port 80/443 | TRIVIAL | MODERATE | Web exposure without WAF |
-| CKV_AWS_382 | SG egress 0.0.0.0/0 all ports | LOW | MODERATE | Unrestricted outbound |
-| CKV_AWS_49 | CloudTrail not enabled | MODERATE | SIGNIFICANT | No audit trail = blind |
-| CKV_AWS_79 | EC2 IMDSv1 enabled | MODERATE | SIGNIFICANT | SSRF → credential theft |
-| CKV_AWS_173 | Lambda env vars not encrypted CMK | LOW | MODERATE | Secrets readable in config |
-| CKV2_AWS_64 | KMS key rotation not enabled | MODERATE | MODERATE | Key compromise window extends |
-| CKV_AWS_18 | S3 access logging disabled | MODERATE | MODERATE | Lost audit trail for bucket |
-| CKV_AWS_61 | IAM cross-account assume unrestricted | LOW | SIGNIFICANT | Lateral movement cross-account |
-| CKV_AWS_60 | IAM role public assume | TRIVIAL | MODERATE | Anyone can assume role |
+| Check ID | Check Name | SH Control | SH Sev | Exploit | Impact |
+|----------|-----------|-----------|--------|---------|--------|
+| CKV_AWS_111 | IAM write without constraints | IAM.1 | CRITICAL* | LOW | SIGNIFICANT |
+| CKV_AWS_109 | IAM permissions management exposure | IAM.1 | CRITICAL* | LOW | SIGNIFICANT |
+| CKV_AWS_356 | IAM `*` resource for restrictable actions | IAM.1 | CRITICAL* | LOW | SIGNIFICANT |
+| CKV_AWS_63 | IAM `*` as statement actions | IAM.1 | CRITICAL* | LOW | SIGNIFICANT |
+| CKV_AWS_40 | IAM policy with `*` actions | IAM.1 | CRITICAL* | LOW | SIGNIFICANT |
+| CKV_AWS_288 | IAM data exfiltration risk | — | — | LOW | SIGNIFICANT |
+| CKV_AWS_289 | IAM permissions management without constraints | — | — | LOW | SIGNIFICANT |
+| CKV_AWS_290 | IAM write access without constraints | — | — | LOW | SIGNIFICANT |
+| CKV_AWS_286 | IAM privilege escalation | — | — | LOW | CATASTROPHIC |
+| CKV_AWS_19 | S3 encryption at rest disabled | S3.4 | MEDIUM | LOW | SIGNIFICANT |
+| CKV_AWS_7 | EBS not encrypted | EC2.3 | MEDIUM | LOW | SIGNIFICANT |
+| CKV_AWS_16 | RDS storage not encrypted | RDS.3 | MEDIUM | LOW | SIGNIFICANT |
+| CKV_AWS_35 | CloudTrail logs not encrypted | CloudTrail.2 | MEDIUM | MODERATE | SIGNIFICANT |
+| CKV_AWS_20 | S3 SSL not enforced | S3.5 | MEDIUM | LOW | MODERATE |
+| CKV_AWS_2 | ALB not using HTTPS | ELB.2 | MEDIUM | LOW | MODERATE |
+| CKV2_AWS_11 | VPC flow logs not enabled | EC2.6 | MEDIUM | MODERATE | MODERATE |
+| CKV2_AWS_12 | Default SG not restricting traffic | EC2.2 | HIGH | LOW | MODERATE |
+| CKV_AWS_260 | SG ingress 0.0.0.0/0 port 80/443 | EC2.18 | HIGH | TRIVIAL | MODERATE |
+| CKV_AWS_382 | SG egress 0.0.0.0/0 all ports | — | — | LOW | MODERATE |
+| CKV_AWS_49 | CloudTrail not enabled | CloudTrail.1 | HIGH | MODERATE | SIGNIFICANT |
+| CKV_AWS_79 | EC2 IMDSv1 enabled | EC2.8 | HIGH | MODERATE | SIGNIFICANT |
+| CKV_AWS_173 | Lambda env vars not encrypted CMK | Lambda.7 | MEDIUM | LOW | MODERATE |
+| CKV2_AWS_64 | KMS key rotation not enabled | KMS.4 | MEDIUM | MODERATE | MODERATE |
+| CKV_AWS_18 | S3 access logging disabled | S3.9 | MEDIUM | MODERATE | MODERATE |
+| CKV_AWS_61 | IAM cross-account assume unrestricted | — | — | LOW | SIGNIFICANT |
+| CKV_AWS_60 | IAM role public assume | — | — | TRIVIAL | MODERATE |
+
+> *CKV_AWS_111/109/356/63/40: Security Hub maps tới IAM.1 (CRITICAL) khi policy = full admin. Checkov fires trên broader "wildcard" patterns (not necessarily full admin) → chúng ta classify HIGH vì cần existing credentials + not always full admin. Justified deviation.
+> *CKV_AWS_19/7/16: Security Hub = MEDIUM cho encryption at rest. IaC context = data exposed nếu volume/bucket accessed → chúng ta classify HIGH vì đây là data protection gap cho sensitive data stores. Justified deviation — reassess per environment.
 
 ### MEDIUM (Exploit: MODERATE/HIGH × Impact: MODERATE/MINIMAL)
 
-| Check ID | Check Name | Exploit | Impact | Rationale |
-|----------|-----------|---------|--------|-----------|
-| CKV_AWS_150 | LB deletion protection disabled | HIGH | MODERATE | Accidental delete (not attack) |
-| CKV_AWS_21 | S3 versioning disabled | MODERATE | MODERATE | Data loss on overwrite |
-| CKV_AWS_133 | RDS backup retention | MODERATE | MODERATE | Recovery gap |
-| CKV_AWS_144 | S3 cross-region replication disabled | HIGH | MODERATE | DR gap |
-| CKV_AWS_116 | Lambda no DLQ | MODERATE | MINIMAL | Failed messages lost |
-| CKV_AWS_50 | Lambda no X-Ray tracing | HIGH | MINIMAL | Debugging harder |
-| CKV_AWS_272 | Lambda no code signing | MODERATE | MODERATE | Unsigned code deploy |
-| CKV_AWS_115 | Lambda no reserved concurrency | HIGH | MINIMAL | Throttling risk |
-| CKV_AWS_117 | Lambda not in VPC | MODERATE | MODERATE | Can't access private resources |
-| CKV_AWS_338 | CW log retention < 1 year | HIGH | MODERATE | Compliance gap |
-| CKV_AWS_300 | S3 lifecycle abort multipart | HIGH | MINIMAL | Storage waste |
-| CKV2_AWS_62 | S3 event notifications disabled | HIGH | MINIMAL | Operational gap |
-| CKV2_AWS_61 | S3 lifecycle not configured | HIGH | MINIMAL | Cost optimization |
-| CKV_AWS_91 | ALB access logs disabled | MODERATE | MODERATE | Lost request audit |
-| CKV_AWS_131 | ALB not dropping invalid headers | MODERATE | MODERATE | Header injection risk |
-| CKV2_AWS_5 | Security Group not attached | HIGH | MINIMAL | Unused resource cleanup |
-| CKV_AWS_331 | TGW auto-accept attachments | MODERATE | MODERATE | Unintended network join |
-| CKV_AWS_126 | EC2 detailed monitoring disabled | HIGH | MINIMAL | Less visibility |
-| CKV_AWS_135 | EC2 EBS optimized disabled | HIGH | MINIMAL | Performance only |
-| CKV2_AWS_19 | EIP not associated | HIGH | MINIMAL | Cost waste |
+| Check ID | Check Name | SH Control | SH Sev | Exploit | Impact |
+|----------|-----------|-----------|--------|---------|--------|
+| CKV_AWS_150 | LB deletion protection disabled | ELB.6 | MEDIUM | HIGH | MODERATE |
+| CKV_AWS_21 | S3 versioning disabled | S3.14 | LOW | MODERATE | MODERATE |
+| CKV_AWS_133 | RDS backup retention | RDS.11 | MEDIUM | MODERATE | MODERATE |
+| CKV_AWS_144 | S3 cross-region replication disabled | — | — | HIGH | MODERATE |
+| CKV_AWS_116 | Lambda no DLQ | Lambda.4 | LOW | MODERATE | MINIMAL |
+| CKV_AWS_50 | Lambda no X-Ray tracing | Lambda.5 | LOW | HIGH | MINIMAL |
+| CKV_AWS_272 | Lambda no code signing | Lambda.8 | LOW | MODERATE | MODERATE |
+| CKV_AWS_115 | Lambda no reserved concurrency | Lambda.6 | MEDIUM | HIGH | MINIMAL |
+| CKV_AWS_117 | Lambda not in VPC | Lambda.3 | LOW | MODERATE | MODERATE |
+| CKV_AWS_338 | CW log retention < 1 year | CloudWatch.1 | MEDIUM | HIGH | MODERATE |
+| CKV_AWS_300 | S3 lifecycle abort multipart | — | — | HIGH | MINIMAL |
+| CKV2_AWS_62 | S3 event notifications disabled | — | — | HIGH | MINIMAL |
+| CKV2_AWS_61 | S3 lifecycle not configured | — | — | HIGH | MINIMAL |
+| CKV_AWS_91 | ALB access logs disabled | ELB.5 | MEDIUM | MODERATE | MODERATE |
+| CKV_AWS_131 | ALB not dropping invalid headers | ELB.4 | MEDIUM | MODERATE | MODERATE |
+| CKV2_AWS_5 | Security Group not attached | EC2.22 | MEDIUM | HIGH | MINIMAL |
+| CKV_AWS_331 | TGW auto-accept attachments | EC2.23 | HIGH | MODERATE | MODERATE |
+| CKV_AWS_126 | EC2 detailed monitoring disabled | EC2.7 | LOW | HIGH | MINIMAL |
+| CKV_AWS_135 | EC2 EBS optimized disabled | — | — | HIGH | MINIMAL |
+| CKV2_AWS_19 | EIP not associated | EC2.12 | LOW | HIGH | MINIMAL |
 
 ### LOW (Exploit: HIGH × Impact: MINIMAL)
 
-| Check ID | Check Name | Exploit | Impact | Rationale |
-|----------|-----------|---------|--------|-----------|
-| CKV2_AWS_34 | SSM Parameter not encrypted CMK | HIGH | MINIMAL | Default encryption exists |
-| CKV_AWS_158 | CW Log Group not encrypted CMK | HIGH | MINIMAL | Default encryption exists |
-| CKV_AWS_153 | Tagging not enforced | HIGH | MINIMAL | Governance only |
+| Check ID | Check Name | SH Control | SH Sev | Exploit | Impact |
+|----------|-----------|-----------|--------|---------|--------|
+| CKV2_AWS_34 | SSM Parameter not encrypted CMK | — | — | HIGH | MINIMAL |
+| CKV_AWS_158 | CW Log Group not encrypted CMK | CloudWatch.2 | MEDIUM | HIGH | MINIMAL |
+| CKV_AWS_153 | Tagging not enforced | — | — | HIGH | MINIMAL |
 
 ---
 
