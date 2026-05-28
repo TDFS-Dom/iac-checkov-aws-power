@@ -292,16 +292,16 @@ Nếu một finding không match bất kỳ tiêu chí cụ thể nào ở trên
 ## Decision Tree (cho agent khi classify)
 
 ```
-1. Check ID có trong bảng CRITICAL? → CRITICAL
-2. Check ID có trong bảng HIGH? → HIGH
-3. Check ID có trong bảng MEDIUM? → MEDIUM
-4. Check ID có trong bảng LOW? → LOW
-5. Không match → check_name keyword pattern match? → dùng severity tương ứng
-6. Vẫn không match → resource type fallback table
-7. Vẫn không match → MEDIUM (default)
+1. Check ID có trong `references/aws-checks-full-list.md`? → dùng severity từ đó (456 checks, đầy đủ)
+2. Check ID mới (chưa có trong list)? → dùng Pre-computed table (top 60) ở trên
+3. Vẫn không có? → check_name keyword pattern match
+4. Vẫn không match? → resource type fallback table
+5. Vẫn không match? → MEDIUM (default)
 ```
 
 **KHÔNG BAO GIỜ để finding ở UNKNOWN** — mọi finding PHẢI được classify vào 1 trong 4 levels.
+
+> **Note**: `aws-checks-full-list.md` chứa severity cho TẤT CẢ 456 checks hiện có. File này là lookup table hoàn chỉnh. Pre-computed table + Ma trận + Fallback rules trong file này chỉ dùng khi Checkov release checks MỚI chưa có trong list.
 
 ---
 
