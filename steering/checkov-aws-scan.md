@@ -170,12 +170,15 @@ mv .checkov-reports/scans/$NEXT/results_json.json .checkov-reports/scans/$NEXT/r
 
 **Checklist — tạo từng file từ template:**
 
+> Parse results.json theo hướng dẫn `references/templates/parse-results-guide.md`
+> PHẢI extract data thực từ JSON — KHÔNG để placeholder, KHÔNG bỏ trống.
+
 - [ ] `results.json` — renamed từ Checkov output (KHÔNG tự tạo)
 - [ ] `metadata.md` — fill template, ghi scan context (date, scope, duration, version)
-- [ ] `summary.md` — parse results.json → fill template (counts, severity, top findings)
-- [ ] `remediation-plan.md` — fill template (priority matrix từ findings)
-- [ ] `tech-debt.md` — fill template (items MEDIUM/LOW accepted)
-- [ ] `delta.md` — fill template, so sánh với scan trước (CHỈ từ scan #002 trở đi)
+- [ ] `summary.md` — parse results.json → fill TẤT CẢ fields (counts, severity, by-folder, top findings)
+- [ ] `remediation-plan.md` — parse results.json → liệt kê TẤT CẢ findings grouped by P0/P1/P2/P3
+- [ ] `tech-debt.md` — parse results.json → list MEDIUM+LOW items với justification
+- [ ] `delta.md` — so sánh 2 results.json → list new/resolved/unchanged (CHỈ từ scan #002)
 - [ ] `plan.md` — đã tạo trước scan, PHẢI nằm trong folder này
 
 **Update state:**
