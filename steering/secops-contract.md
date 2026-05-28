@@ -114,6 +114,16 @@ baseline: .checkov.baseline
 - Chỉ filter khi user yêu cầu compliance-specific
 - **Severity UNKNOWN**: Checkov OSS thường không có severity metadata → agent lookup `references/aws-checks-full-list.md` (cột Severity) trước. Nếu check mới không có trong list → dùng `references/severity-classification.md` Scoring Matrix.
 
+### Severity Lookup Rule (BẮT BUỘC — vi phạm = kết quả sai)
+- **MỌI lần classify severity** (generate summary, remediation-plan, tech-debt, hoặc hiển thị cho user) → agent PHẢI đọc file `references/aws-checks-full-list.md` và tra cột Severity theo Check ID.
+- **KHÔNG ĐƯỢC** tự đoán severity từ check description hay "cảm giác".
+- **Ví dụ checks HAY BỊ SAI:**
+  - `CKV_AWS_189` (EBS encrypted with CMK) = **LOW** (không phải HIGH — CMK upgrade, default encryption đã có)
+  - `CKV_AWS_158` (CW Log encrypted KMS) = **LOW** (không phải HIGH)
+  - `CKV2_AWS_34` (SSM Parameter encrypted) = **LOW** (không phải HIGH)
+  - `CKV_AWS_331` (TGW auto-accept) = **MEDIUM** (không phải HIGH)
+  - `CKV_AWS_144` (S3 replication) = **MEDIUM** (không phải HIGH)
+
 ### Append-Only Tracking
 - tracking.md chỉ APPEND, KHÔNG overwrite
 - Mỗi scan = 1 entry mới với timestamp
