@@ -132,19 +132,19 @@ checkov -d {target_dir} \
   --baseline .checkov.baseline \
   --compact \
   -o json -o cli \
-  --output-file-path .checkov-reports
+  --output-file-path .checkov-reports/scans/$NEXT
 ```
 
 **CHỈ KHI user yêu cầu compliance-specific mới filter:**
 ```bash
 # CIS AWS (chỉ khi user hỏi CIS)
-checkov -d {target_dir} --check CIS_AWS -o json --output-file-path .checkov-reports
+checkov -d {target_dir} --check CIS_AWS -o json --output-file-path .checkov-reports/scans/$NEXT
 
 # PCI-DSS (chỉ khi user hỏi PCI)
-checkov -d {target_dir} --check CKV_AWS_19,CKV_AWS_61,CKV_AWS_7,CKV_AWS_89,CKV_AWS_23,CKV_AWS_40,CKV_AWS_18,CKV_AWS_49 -o json --output-file-path .checkov-reports
+checkov -d {target_dir} --check CKV_AWS_19,CKV_AWS_61,CKV_AWS_7,CKV_AWS_89,CKV_AWS_23,CKV_AWS_40,CKV_AWS_18,CKV_AWS_49 -o json --output-file-path .checkov-reports/scans/$NEXT
 
 # HIPAA (chỉ khi user hỏi HIPAA)
-checkov -d {target_dir} --check CKV_AWS_19,CKV_AWS_7,CKV_AWS_61,CKV_AWS_20,CKV_AWS_18,CKV_AWS_40,CKV_AWS_49,CKV_AWS_23,CKV_AWS_27 -o json --output-file-path .checkov-reports
+checkov -d {target_dir} --check CKV_AWS_19,CKV_AWS_7,CKV_AWS_61,CKV_AWS_20,CKV_AWS_18,CKV_AWS_40,CKV_AWS_49,CKV_AWS_23,CKV_AWS_27 -o json --output-file-path .checkov-reports/scans/$NEXT
 ```
 
 **Nguyên tắc: Quét hết → phân tích sau. KHÔNG bỏ sót check nào.**
@@ -158,6 +158,41 @@ checkov -d {target_dir} --check CKV_AWS_19,CKV_AWS_7,CKV_AWS_61,CKV_AWS_20,CKV_A
 | Timeout (>60s) | Add `--skip-path`, reduce scope |
 | Module download fail | Skip `--download-external-modules` |
 | Permission denied | Report to user |
+
+### Step 2.5: Post-Scan Files (BẮT BUỘC — KHÔNG ĐƯỢC SKIP)
+
+Sau khi checkov chạy xong, agent PHẢI tạo TẤT CẢ files sau trong `.checkov-reports/scans/$NEXT/`:
+
+```bash
+# Rename checkov output
+mv .checkov-reports/scans/$NEXT/results_json.json .checkov-reports/scans/$NEXT/results.json 2>/dev/null
+```
+
+**Checklist — tạo từng file từ template:**
+
+- [ ] `results.json` — renamed từ Checkov output (KHÔNG tự tạo)
+- [ ] `metadata.md` — fill template, ghi scan context (date, scope, duration, version)
+- [ ] `summary.md` — parse results.json → fill template (counts, severity, top findings)
+- [ ] `remediation-plan.md` — fill template (priority matrix từ findings)
+- [ ] `tech-debt.md` — fill template (items MEDIUM/LOW accepted)
+- [ ] `delta.md` — fill template, so sánh với scan trước (CHỈ từ scan #002 trở đi)
+- [ ] `plan.md` — đã tạo trước scan, PHẢI nằm trong folder này
+
+**Update state:**
+
+- [ ] `state/tracking.md` — APPEND row mới vào Timeline
+- [ ] `state/project-memory.md` — update nếu có decision mới
+- [ ] `scans/latest.txt` — overwrite với scan number hiện tại
+
+**KHÔNG ĐƯỢC chuyển sang Phase 3 nếu chưa tạo đủ files.**
+
+Verify:
+```bash
+echo "=== Verify scan $NEXT files ==="
+for f in results.json metadata.md summary.md remediation-plan.md tech-debt.md plan.md; do
+  test -f ".checkov-reports/scans/$NEXT/$f" && echo "✅ $f" || echo "❌ MISSING: $f"
+done
+```
 
 ---
 
