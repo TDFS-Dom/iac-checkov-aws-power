@@ -76,22 +76,50 @@ top = sorted(failed, key=lambda x: severity_order.get(x.get('severity', ''), 4))
 ## Cách fill remediation-plan.md
 
 ```python
-# Group by priority
-p0 = [f for f in failed if f.get('severity') == 'CRITICAL']
-p1 = [f for f in failed if f.get('severity') == 'HIGH']
-p2 = [f for f in failed if f.get('severity') == 'MEDIUM']
-p3 = [f for f in failed if f.get('severity') == 'LOW']
+# Group by priority — using CLASSIFICATION RULES (not raw severity)
+# Because Checkov OSS often returns severity=null or UNKNOWN
+
+failed = data.get('results', {}).get('failed_checks', [])
+
+# Step 1: Try to use Checkov severity
+# Step 2: If severity is null/UNKNOWN, classify by check type
+IAM_ADMIN_CHECKS = {'CKV_AWS_274', 'CKV_AWS_40'}
+IAM_WILDCARD_CHECKS = {'CKV_AWS_111', 'CKV_AWS_109', 'CKV_AWS_356'}
+NETWORK_EXPOSURE_CHECKS = {'CKV_AWS_260', 'CKV_AWS_382', 'CKV_AWS_23', 'CKV_AWS_24'}
+NETWORK_VISIBILITY_CHECKS = {'CKV2_AWS_11', 'CKV2_AWS_12'}
+ENCRYPTION_CHECKS = {'CKV_AWS_19', 'CKV_AWS_7', 'CKV_AWS_16', 'CKV_AWS_61'}
+
+def classify_priority(finding):
+    sev = finding.get('severity')
+    check_id = finding.get('check_id', '')
+    
+    # Use Checkov severity if available and not UNKNOWN
+    if sev and sev != 'UNKNOWN':
+        return {'CRITICAL': 'P0', 'HIGH': 'P1', 'MEDIUM': 'P2', 'LOW': 'P3'}[sev]
+    
+    # Classify by check type
+    if check_id in IAM_ADMIN_CHECKS:
+        return 'P0'
+    if check_id in IAM_WILDCARD_CHECKS:
+        return 'P1'
+    if check_id in NETWORK_EXPOSURE_CHECKS or check_id in NETWORK_VISIBILITY_CHECKS:
+        return 'P1'
+    if check_id in ENCRYPTION_CHECKS:
+        return 'P1'
+    if 'S3' in finding.get('check_name', '') or 'SSM' in check_id or 'KMS' in check_id:
+        return 'P2'
+    return 'P3'
+
+p0 = [f for f in failed if classify_priority(f) == 'P0']
+p1 = [f for f in failed if classify_priority(f) == 'P1']
+p2 = [f for f in failed if classify_priority(f) == 'P2']
+p3 = [f for f in failed if classify_priority(f) == 'P3']
 
 # Fill Priority Matrix counts
 # P0 count = len(p0), P1 count = len(p1), etc.
 
-# Fill each table row:
-for i, finding in enumerate(p0):
-    # Check ID = finding['check_id']
-    # Finding = finding['check_name']
-    # Resource = finding['resource']
-    # File = finding['file_path']
-    # Line = finding['file_line_range'][0]
+# Group findings by subcategory within each priority
+# Subcategories: IAM, Network, Storage, Compute, Logging, Other
 ```
 
 ## Cách fill delta.md
@@ -114,31 +142,55 @@ unchanged = curr_ids & prev_ids         # In both
 ## Cách fill tech-debt.md
 
 ```python
-# Tech debt = MEDIUM + LOW findings (accepted, not fixed immediately)
-# HIGH findings CHỈ vào tech-debt khi user explicitly approve
-tech_debt_items = [f for f in failed if f.get('severity') in ('MEDIUM', 'LOW')]
+# Tech debt = P2 + P3 findings (from priority classification above)
+# Level 1: auto-generate compact format (no user input needed)
 
-# Each item becomes TD-NNN entry with:
-# - Check ID, Severity, Resource, File, Line from JSON
-# - Environment = agent asks user OR infer from file path (e.g., /dev/ → dev)
-# - Risk Assessment:
-#   - Impact = based on severity (MEDIUM→MEDIUM, LOW→LOW)
-#   - Likelihood = based on resource exposure (public-facing→HIGH, internal→LOW)
-#   - Blast radius = based on resource type (IAM→wide, single bucket→narrow)
-#   - Data sensitivity = infer from resource name/type or ask user
-# - Business Justification = agent asks user OR suggest based on context
-#   KHÔNG ĐƯỢC viết generic "Low priority" — phải context-specific
-# - Compensating Controls = agent suggests based on check type:
-#   - Missing encryption → "Data not sensitive" or "Network isolation"
-#   - Missing logging → "CloudTrail enabled at account level"
-#   - Missing versioning → "Lifecycle policy, data is ephemeral"
-#   - Open SG (MEDIUM) → "WAF/NLB in front, monitoring alert"
-# - Acceptance Criteria = trigger condition khi nào PHẢI fix:
-#   - "If resource stores PII → fix immediately"
-#   - "If environment promoted to prod → fix before promotion"
-#   - "If public access detected → fix within 4h"
-# - Target Fix Date = end of next quarter
-# - Review Date = accepted date + 90 days
+tech_debt_candidates = [f for f in failed if classify_priority(f) in ('P2', 'P3')]
+
+# Separate into categories:
+# 1. "Accepted Debt" — findings with clear justification pattern:
+#    - False positives (GWLB HTTPS check on GENEVE, SG module unattached by design)
+#    - Non-production (scripts/, test/)
+#    - Managed appliance (Palo Alto, vendor-managed)
+#    - Architecture pattern (module creates for attachment elsewhere)
+#
+# 2. "Needs Review" — findings that SHOULD be fixed but need decision:
+#    - Low-effort fixes that aren't blocked
+#    - Compliance-relevant (logging, retention)
+#
+# 3. "Suppression Candidates" — clear false positives for .checkov.baseline
+
+# Justification generation (context-specific, NEVER generic):
+def suggest_justification(finding):
+    check_id = finding['check_id']
+    resource = finding['resource']
+    file_path = finding['file_path']
+    
+    # Pattern: GWLB/NLB non-HTTPS listener
+    if check_id == 'CKV_AWS_2' and 'gwlb' in file_path.lower():
+        return "GWLB uses GENEVE protocol, not HTTPS — false positive for this LB type"
+    
+    # Pattern: SG module creates unattached SGs
+    if check_id == 'CKV2_AWS_5' and 'modules/sg' in file_path:
+        return "SG module creates SGs for attachment elsewhere — expected pattern"
+    
+    # Pattern: Script/test infrastructure
+    if 'scripts/' in file_path or 'test/' in file_path:
+        return "Non-production infrastructure — script/test environment"
+    
+    # Pattern: Vendor-managed appliance
+    if 'pan-firewall' in file_path or 'palo' in file_path.lower():
+        return "Managed appliance (Palo Alto) — vendor-controlled config"
+    
+    # Default: needs review
+    return None  # → goes to "Needs Review" section
+
+# Level 2 enrichment (when user requests):
+# - Add Risk Assessment per item
+# - Add Acceptance Criteria (trigger conditions)
+# - Add Compensating Controls
+# - Add Target Fix Date + Review Date
+# - Convert to detailed TD-NNN blocks
 ```
 
 ## QUAN TRỌNG — Agent Rules

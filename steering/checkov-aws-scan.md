@@ -176,8 +176,8 @@ mv .checkov-reports/scans/$NEXT/results_json.json .checkov-reports/scans/$NEXT/r
 - [ ] `results.json` — renamed từ Checkov output (KHÔNG tự tạo)
 - [ ] `metadata.md` — fill template, ghi scan context (date, scope, duration, version)
 - [ ] `summary.md` — parse results.json → fill TẤT CẢ fields (counts, severity, by-folder, top findings)
-- [ ] `remediation-plan.md` — parse results.json → liệt kê TẤT CẢ findings grouped by P0/P1/P2/P3
-- [ ] `tech-debt.md` — parse results.json → list MEDIUM+LOW items với justification
+- [ ] `remediation-plan.md` — parse results.json → classify ALL findings by priority (P0→P3), group by subcategory, include remediation guidance. If severity=UNKNOWN → classify by check type per template rules.
+- [ ] `tech-debt.md` — Level 1 (auto-generate): P2+P3 findings split into Accepted Debt (clear justification), Needs Review (needs decision), Suppression Candidates (false positives). Justifications context-specific, NOT generic.
 - [ ] `delta.md` — so sánh 2 results.json → list new/resolved/unchanged (CHỈ từ scan #002)
 - [ ] `plan.md` — đã tạo trước scan, PHẢI nằm trong folder này
 

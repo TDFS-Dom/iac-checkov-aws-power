@@ -210,16 +210,47 @@ Items below are **permanently accepted** — will NOT be fixed. Requires securit
 
 ## Agent Rules (cho AI khi generate file này)
 
-1. **Parse results.json** → lọc MEDIUM + LOW findings → tạo TD entries
-2. **HIGH findings** chỉ vào tech-debt khi user EXPLICITLY approve (hỏi trước)
-3. **CRITICAL** KHÔNG BAO GIỜ vào tech-debt — luôn nằm trong remediation-plan P0
-4. **Business Justification** KHÔNG ĐƯỢC để generic ("low priority") — phải context-specific
-5. **Compensating Controls** PHẢI suggest ít nhất 1 control hợp lý per item
-6. **Acceptance Criteria** PHẢI có ít nhất 1 trigger condition per item
-7. **Risk Assessment** PHẢI fill đầy đủ 4 dimensions (Impact, Likelihood, Blast radius, Data sensitivity)
-8. **Nếu user chưa provide justification** → agent suggest based on resource type + environment, mark "(suggested — confirm with team)"
-9. **Review Date** = Accepted Date + 90 days (quarterly review cycle)
-10. **Target Fix Date** mặc định = end of next quarter, trừ khi user specify khác
+### Level 1 — Auto-Generate (từ scan data, KHÔNG cần user input)
+
+Khi full pipeline chạy lần đầu, agent tạo tech-debt.md ở **Level 1** (compact):
+
+1. **Parse results.json** → lọc P2 + P3 findings (từ remediation-plan classification)
+2. **Format**: Simple table per item (Check ID, Resource, File, Justification)
+3. **Justification**: Agent SUGGEST dựa trên context:
+   - Resource type (GWLB → "GENEVE protocol, not HTTPS")
+   - Module pattern (SG module → "Creates SGs for attachment elsewhere")
+   - File path (scripts/ → "Non-production infrastructure")
+   - Known patterns (project-memory.md)
+   - Mark suggested items: "(suggested — confirm with team)"
+4. **Sections tạo ngay**: Accepted Debt table, Needs Review table, Suppression Candidates
+5. **Sections SKIP ở Level 1**: Executive Summary, Risk Assessment, Acceptance Criteria, Metrics & Trends (chờ Level 2)
+6. **CRITICAL/P0** KHÔNG BAO GIỜ vào tech-debt
+7. **P1/HIGH** chỉ vào tech-debt khi có clear false-positive pattern
+
+### Level 2 — Enrich (cần user input, khi user review hoặc hỏi "chi tiết tech debt")
+
+Khi user yêu cầu enrich (ví dụ: "chi tiết tech debt", "review debt items"):
+
+1. Convert từ table → per-item detail blocks (TD-001, TD-002...)
+2. Hỏi user từng item hoặc batch: confirm/reject justification
+3. Thêm **Risk Assessment** (4 dimensions) — suggest defaults, user confirm
+4. Thêm **Acceptance Criteria** — suggest trigger conditions
+5. Thêm **Compensating Controls** — suggest based on check type
+6. Thêm **Target Fix Date** + **Review Date**
+7. Thêm **Executive Summary** table
+8. Output = full template format (xem Accepted Tech Debt Items section ở trên)
+
+### Khi nào chuyển Level 1 → Level 2:
+- User nói "review tech debt" / "chi tiết debt" / "enrich"
+- User hỏi về specific TD item
+- User approve/reject justification
+- Quarterly review trigger
+
+### Classification Rules (align với remediation-plan.md):
+- P2 findings → candidates for tech debt (schedule fix)
+- P3 findings → strong candidates for tech debt hoặc suppress
+- False positives detected → suggest suppress (permanent exception)
+- Module-pattern findings → suggest tech debt + explain pattern
 
 ---
 
