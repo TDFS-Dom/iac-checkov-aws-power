@@ -102,6 +102,81 @@ Tạo baseline cho infrastructure hiện tại
 
 ## Workflow
 
+### Execution Flow
+
+```mermaid
+flowchart TD
+    START([User Request]) --> ROUTE{Routing}
+    
+    ROUTE -->|"scan / quét"| PLAN[📋 Plan]
+    ROUTE -->|"tiếp tục"| STATUS[📊 Status Check]
+    ROUTE -->|"fix CKV_*"| FIX[🔧 Fix]
+    ROUTE -->|"report"| REPORT[📄 Report]
+    
+    PLAN -->|User Approve| SCAN[🔍 Scan]
+    SCAN --> ANALYZE[📊 Analyze]
+    ANALYZE --> TRACK[💾 Track]
+    
+    TRACK --> DECIDE{User Decision}
+    DECIDE -->|"fix now"| FIX
+    DECIDE -->|"plan fix"| REMPLAN[📝 Remediation Plan]
+    DECIDE -->|"accept debt"| TECHDEBT[📋 Tech Debt Register]
+    DECIDE -->|"baseline"| BASELINE[🔒 Baseline Lock]
+    
+    FIX --> VERIFY[✅ Verify]
+    VERIFY -->|PASS| TRACK
+    VERIFY -->|FAIL| FIX
+    
+    STATUS -->|"pending items"| DECIDE
+    STATUS -->|"all clean"| DONE([✅ Done])
+```
+
+### Session Continuity
+
+```mermaid
+flowchart LR
+    subgraph "Session Start"
+        A[Read project-memory.md] --> B[Read tracking.md]
+        B --> C[Recommend next action]
+    end
+    
+    subgraph "During Session"
+        D[Execute commands] --> E[Update tracking]
+        E --> F[Update memory if decision made]
+    end
+    
+    subgraph "Session End"
+        G[All state persisted in files]
+    end
+    
+    C --> D
+    F --> G
+```
+
+### Data Flow — What Goes Where
+
+```mermaid
+flowchart TD
+    SCAN_CMD[checkov -d .] --> RAW[results_json.json]
+    
+    RAW --> ANALYZE_STEP[Analyze]
+    ANALYZE_STEP --> TRACKING[tracking.md<br/>Facts: counts, delta]
+    ANALYZE_STEP --> SUMMARY[Summary Display<br/>to User]
+    
+    SUMMARY --> USER_DECIDE{User Decision}
+    
+    USER_DECIDE -->|"suppress"| MEMORY[project-memory.md<br/>Decisions + Config]
+    USER_DECIDE -->|"fix"| SOURCE[*.tf files modified]
+    USER_DECIDE -->|"plan fix"| REMPLAN_FILE[remediation-plan.md<br/>Action items]
+    USER_DECIDE -->|"accept"| DEBT_FILE[tech-debt.md<br/>Accepted items]
+    USER_DECIDE -->|"baseline"| BASELINE_FILE[.checkov.baseline<br/>Lock current state]
+    
+    SOURCE --> VERIFY_STEP[Re-scan verify]
+    VERIFY_STEP --> TRACKING
+```
+
+### Lifecycle
+
 ```
 [1] PLAN → [2] SCAN → [3] ANALYZE → [4] TRACK → [5] REMEDIATE → [6] VERIFY → [7] REPORT
 ```
