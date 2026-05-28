@@ -176,7 +176,7 @@ mv .checkov-reports/scans/$NEXT/results_json.json .checkov-reports/scans/$NEXT/r
 - [ ] `results.json` — renamed từ Checkov output (KHÔNG tự tạo)
 - [ ] `metadata.md` — fill template, ghi scan context (date, scope, duration, version)
 - [ ] `summary.md` — parse results.json → fill TẤT CẢ fields (counts, severity, by-folder, top findings)
-- [ ] `remediation-plan.md` — parse results.json → classify ALL findings by priority (P0→P3), group by subcategory, include remediation guidance. If severity=UNKNOWN → classify by check type per template rules.
+- [ ] `remediation-plan.md` — parse results.json → classify ALL findings by priority (P0→P3), group by subcategory, include remediation guidance. If severity=UNKNOWN → classify by check type per template rules. **HARD CONSTRAINT: mỗi finding PHẢI có row riêng với resource + file + line. KHÔNG ĐƯỢC chỉ ghi summary "8 findings" mà không liệt kê từng resource. Parse `results.failed_checks[]` → extract từng item.**
 - [ ] `tech-debt.md` — Level 1 (auto-generate): P2+P3 findings split into Accepted Debt (clear justification), Needs Review (needs decision), Suppression Candidates (false positives). Justifications context-specific, NOT generic.
 - [ ] `delta.md` — so sánh 2 results.json → list new/resolved/unchanged (CHỈ từ scan #002)
 - [ ] `plan.md` — đã tạo trước scan, PHẢI nằm trong folder này
@@ -333,7 +333,7 @@ Phase 1 (Plan) → Phase 2 (Scan) → Phase 3 (Analyze) → Phase 4 (Track) → 
 - `metadata.md` — scan context
 - `results.json` — renamed từ Checkov output
 - `summary.md` — parsed findings overview
-- `remediation-plan.md` — priority fix plan (P0→P3) parsed từ results.json
+- `remediation-plan.md` — **PHẢI liệt kê TỪNG finding với resource + file + line** (KHÔNG chỉ summary tables)
 - `tech-debt.md` — accepted debt register (MEDIUM+LOW items)
 - `delta.md` — chỉ từ scan #002 trở đi
 

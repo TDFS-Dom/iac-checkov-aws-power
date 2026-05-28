@@ -3,6 +3,37 @@
 > Generated after scan #{scan_number} | Date: {YYYY-MM-DD}
 > Project: {project_name} | Total findings: {N}
 
+## HARD CONSTRAINT — Per-Resource Detail (KHÔNG ĐƯỢC BỎ QUA)
+
+**MỌI finding PHẢI có `resource + file_path + line`.** Cụ thể:
+
+- Mỗi finding từ `results.json` = 1 row HOẶC 1 item trong "Affected Resources" list
+- KHÔNG BAO GIỜ chỉ ghi "8 findings" hoặc "CKV_AWS_111 | 8 | description" mà không liệt kê 8 resources đó
+- Format bắt buộc cho grouped findings:
+
+```markdown
+### CKV_AWS_111 — {description} ({N} findings)
+
+| # | Resource | File | Line |
+|---|----------|------|------|
+| 1 | `aws_iam_policy_document.kms_policy` | `_modules/kms/main.tf` | 23 |
+| 2 | `aws_iam_policy_document.kms_policy` | `_modules/kms/main.tf` | 23 |
+...mỗi instance 1 row — KHÔNG skip, KHÔNG truncate...
+
+**Remediation:** {fix guidance}
+```
+
+- Nếu cùng resource + cùng file nhưng khác caller (module instances) → vẫn list từng row, thêm cột `Caller`:
+
+```markdown
+| # | Resource | File | Line | Caller |
+|---|----------|------|------|--------|
+| 1 | `aws_iam_policy_document.kms_policy` | `_modules/kms/main.tf` | 23 | `information-security/kms/main.tf:5` |
+| 2 | `aws_iam_policy_document.kms_policy` | `_modules/kms/main.tf` | 23 | `log-archive/kms/main.tf:3` |
+```
+
+**Data source**: `results.json` → `results.failed_checks[]` → extract `resource`, `file_path`, `file_line_range[0]`, `caller_file_path`
+
 ---
 
 ## Priority Matrix
