@@ -23,7 +23,7 @@
 
 ## Remediation Progress
 
-| Check ID | File | Found In | Fixed In | Status |
-|----------|------|----------|----------|--------|
-| {CKV_AWS_N} | {file} | Scan #001 | Scan #002 | ✅ Fixed |
-| {CKV_AWS_N} | {file} | Scan #001 | — | ⏳ Open |
+| Check ID | Resource | File | Line | Found In | Fixed In | Status |
+|----------|----------|------|------|----------|----------|--------|
+| {CKV_AWS_N} | `{aws_type.name}` | `{path/file.tf}` | {N} | Scan #001 | Scan #002 | ✅ Fixed |
+| {CKV_AWS_N} | `{aws_type.name}` | `{path/file.tf}` | {N} | Scan #001 | — | ⏳ Open |

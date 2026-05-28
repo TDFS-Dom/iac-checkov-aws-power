@@ -35,7 +35,8 @@
 | Check ID | CKV_AWS_{NNN} |
 | Severity | MEDIUM |
 | Resource | `aws_{resource_type}.{name}` |
-| File | `{path/to/file.tf}:{line}` |
+| File | `{path/to/file.tf}` |
+| Line | {line_number} |
 | Description | {Checkov description} |
 | Accepted Date | {YYYY-MM-DD} |
 | Owner | {team/person} |
@@ -63,7 +64,8 @@
 | Check ID | CKV_AWS_{NNN} |
 | Severity | LOW |
 | Resource | `aws_{resource_type}.{name}` |
-| File | `{path/to/file.tf}:{line}` |
+| File | `{path/to/file.tf}` |
+| Line | {line_number} |
 | Description | {Checkov description} |
 | Accepted Date | {YYYY-MM-DD} |
 | Owner | {team/person} |
@@ -85,10 +87,10 @@
 
 Items below are **permanently accepted** with security team approval.
 
-| # | Check ID | Resource | Justification | Approved By | Date |
-|---|----------|----------|---------------|-------------|------|
-| 1 | CKV_AWS_{NNN} | `{resource}` | {reason} | {approver} | {date} |
-| 2 | CKV_AWS_{NNN} | `{resource}` | {reason} | {approver} | {date} |
+| # | Check ID | Resource | File | Line | Justification | Approved By | Date |
+|---|----------|----------|------|------|---------------|-------------|------|
+| 1 | CKV_AWS_{NNN} | `{resource}` | `{path/file.tf}` | {N} | {reason} | {approver} | {date} |
+| 2 | CKV_AWS_{NNN} | `{resource}` | `{path/file.tf}` | {N} | {reason} | {approver} | {date} |
 
 ---
 

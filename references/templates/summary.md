@@ -25,11 +25,11 @@
 
 ## Top Findings
 
-| # | Check ID | Severity | Resource | File:Line | Description |
-|---|----------|----------|----------|-----------|-------------|
-| 1 | {CKV_AWS_N} | {sev} | {resource} | {file:line} | {desc} |
-| 2 | {CKV_AWS_N} | {sev} | {resource} | {file:line} | {desc} |
-| 3 | {CKV_AWS_N} | {sev} | {resource} | {file:line} | {desc} |
+| # | Check ID | Severity | Resource | File | Line | Description |
+|---|----------|----------|----------|------|------|-------------|
+| 1 | {CKV_AWS_N} | {sev} | `{aws_type.name}` | `{path/file.tf}` | {N} | {desc} |
+| 2 | {CKV_AWS_N} | {sev} | `{aws_type.name}` | `{path/file.tf}` | {N} | {desc} |
+| 3 | {CKV_AWS_N} | {sev} | `{aws_type.name}` | `{path/file.tf}` | {N} | {desc} |
 
 ## Recommended Next Steps
 

@@ -13,15 +13,15 @@
 
 ## New Findings (not in previous scan)
 
-| # | Check ID | Severity | Resource | File:Line |
-|---|----------|----------|----------|-----------|
-| 1 | {CKV_AWS_N} | {sev} | {resource} | {file:line} |
+| # | Check ID | Severity | Resource | File | Line |
+|---|----------|----------|----------|------|------|
+| 1 | {CKV_AWS_N} | {sev} | `{aws_type.name}` | `{path/file.tf}` | {N} |
 
 ## Resolved Findings (were in previous, now fixed)
 
-| # | Check ID | Severity | Resource | How Resolved |
-|---|----------|----------|----------|--------------|
-| 1 | {CKV_AWS_N} | {sev} | {resource} | {fixed/suppressed/removed} |
+| # | Check ID | Severity | Resource | File | Line | How Resolved |
+|---|----------|----------|----------|------|------|--------------|
+| 1 | {CKV_AWS_N} | {sev} | `{aws_type.name}` | `{path/file.tf}` | {N} | {fixed/suppressed/removed} |
 
 ## Unchanged Findings
 
