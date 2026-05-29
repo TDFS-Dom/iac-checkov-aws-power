@@ -135,6 +135,11 @@ baseline: .checkov.baseline
 | CKV2_AWS_62 | S3 event notifications | HIGH | **MEDIUM** | Operational hygiene, not security breach |
 | CKV2_AWS_61 | S3 lifecycle configuration | HIGH | **MEDIUM** | Operational hygiene, not security breach |
 | CKV2_AWS_64 | KMS key policy not defined | MEDIUM | **HIGH** | Key policy = access control for encryption keys |
+| CKV_AWS_126 | EC2 detailed monitoring | HIGH | **MEDIUM** | Observability, not security vulnerability |
+| CKV_AWS_135 | EC2 EBS optimized | HIGH | **MEDIUM** | Performance optimization, zero security impact |
+| CKV_AWS_152 | LB cross-zone load balancing | HIGH | **MEDIUM** | Availability/resilience, not security |
+| CKV_AWS_50 | Lambda X-Ray tracing | HIGH | **MEDIUM** | Debugging/observability, not security |
+| CKV_AWS_300 | S3 lifecycle abort multipart | HIGH | **MEDIUM** | Storage hygiene, not security breach |
 
 **Pattern rule**: Bất kỳ check nào nói "encrypted by KMS using CMK" hoặc "encrypted using customer managed Key" = **LOW** (trừ CloudTrail CMK = HIGH vì tamper protection).
 
