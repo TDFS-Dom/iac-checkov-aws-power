@@ -163,6 +163,15 @@ baseline: .checkov.baseline
 - Report PASS/FAIL ngay
 - Nếu FAIL → báo user, suggest alternative fix
 
+### Mandatory Script Rule (KHÔNG CÓ NGOẠI LỆ)
+- **SAU scan, TRƯỚC khi generate BẤT KỲ output nào** (summary, remediation-plan, tech-debt, display cho user) → agent PHẢI chạy:
+  ```bash
+  python3 scripts/classify_findings.py .checkov-reports/scans/{NNN}/results.json > .checkov-reports/scans/{NNN}/classified.json
+  ```
+- **Nếu classified.json không tồn tại** → STOP. Không generate. Báo lỗi.
+- **Agent đọc severity TỪ classified.json** — KHÔNG tự gán severity cho finding.
+- **Vi phạm rule này = output SAI** — đã xảy ra nhiều lần, mỗi lần agent "tạp" ra severity khác nhau.
+
 ### Large Scan Protocol
 - Scan >100 findings → show top 20 (sorted by severity) trước
 - Hỏi "Muốn xem thêm?" trước khi list all
