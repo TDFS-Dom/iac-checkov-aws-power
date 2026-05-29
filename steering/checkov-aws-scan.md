@@ -203,16 +203,25 @@ done
 
 ### Step 3.1: Classify Findings (SCRIPT-BASED — agent KHÔNG tự classify)
 
-Chạy script classify trước khi parse kết quả:
+**BẮT BUỘC CHẠY TRƯỚC MỌI OUTPUT.** Nếu classified.json không tồn tại → KHÔNG generate summary, remediation-plan, tech-debt.
 
 ```bash
 python3 {power_dir}/scripts/classify_findings.py .checkov-reports/scans/$NEXT/results.json \
   > .checkov-reports/scans/$NEXT/classified.json
 ```
 
+**Verify file tồn tại:**
+```bash
+test -f .checkov-reports/scans/$NEXT/classified.json && echo "✅ classified.json ready" || echo "❌ STOP — script failed"
+```
+
 Output `classified.json` chứa findings đã phân loại severity (từ `severity-map.md`). Agent dùng file này cho TẤT CẢ output tiếp theo — **KHÔNG được tự classify lại**.
 
-Nếu script fail (file not found, python error) → agent báo lỗi, KHÔNG fallback sang tự classify.
+**CRITICAL RULE**: Nếu script fail hoặc classified.json không tồn tại:
+- STOP pipeline
+- Báo user: "Script classify_findings.py failed. Kiểm tra Python/path."
+- KHÔNG fallback sang tự classify
+- KHÔNG generate output files với severity tự đoán
 
 ### Step 3.2: Parse Classified Results
 
