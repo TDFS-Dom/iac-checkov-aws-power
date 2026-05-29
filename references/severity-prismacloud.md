@@ -12,27 +12,22 @@
 # Step 1: Download all adoc files from GitHub raw
 BASE="https://raw.githubusercontent.com/hlxsites/prisma-cloud-docs/main/docs/en/enterprise-edition/policy-reference/aws-policies"
 
-curl -sL "$BASE/aws-general-policies/aws-general-policies.adoc" > /tmp/prisma-aws-general.adoc
-curl -sL "$BASE/elastisearch-policies/elastisearch-policies.adoc" > /tmp/prisma-aws-elasticsearch.adoc
-curl -sL "$BASE/aws-iam-policies/aws-iam-policies.adoc" > /tmp/prisma-aws-iam.adoc
-curl -sL "$BASE/aws-kubernetes-policies/aws-kubernetes-policies.adoc" > /tmp/prisma-aws-kubernetes.adoc
-curl -sL "$BASE/aws-logging-policies/aws-logging-policies.adoc" > /tmp/prisma-aws-logging.adoc
-curl -sL "$BASE/aws-networking-policies/aws-networking-policies.adoc" > /tmp/prisma-aws-networking.adoc
-curl -sL "$BASE/public-policies/public-policies.adoc" > /tmp/prisma-aws-public.adoc
-curl -sL "$BASE/s3-policies/s3-policies.adoc" > /tmp/prisma-aws-s3.adoc
-curl -sL "$BASE/secrets-policies/secrets-policies.adoc" > /tmp/prisma-aws-secrets.adoc
-curl -sL "$BASE/aws-serverless-policies/aws-serverless-policies.adoc" > /tmp/prisma-aws-serverless.adoc
-curl -sL "$BASE/aws-supply-chain-policies/aws-supply-chain-policies.adoc" > /tmp/prisma-aws-supplychain.adoc
+curl -sL "$BASE/aws-general-policies/aws-general-policies.adoc" > prisma-cloud-docs/aws-general-policies.adoc
+curl -sL "$BASE/elastisearch-policies/elastisearch-policies.adoc" > prisma-cloud-docs/elastisearch-policies.adoc
+curl -sL "$BASE/aws-iam-policies/aws-iam-policies.adoc" > prisma-cloud-docs/aws-iam-policies.adoc
+curl -sL "$BASE/aws-kubernetes-policies/aws-kubernetes-policies.adoc" > prisma-cloud-docs/aws-kubernetes-policies.adoc
+curl -sL "$BASE/aws-logging-policies/aws-logging-policies.adoc" > prisma-cloud-docs/aws-logging-policies.adoc
+curl -sL "$BASE/aws-networking-policies/aws-networking-policies.adoc" > prisma-cloud-docs/aws-networking-policies.adoc
+curl -sL "$BASE/public-policies/public-policies.adoc" > prisma-cloud-docs/public-policies.adoc
+curl -sL "$BASE/s3-policies/s3-policies.adoc" > prisma-cloud-docs/s3-policies.adoc
+curl -sL "$BASE/aws-serverless-policies/aws-serverless-policies.adoc" > prisma-cloud-docs/aws-serverless-policies.adoc
+curl -sL "$BASE/aws-supply-chain-policies/aws-supply-chain-policies.adoc" > prisma-cloud-docs/aws-supply-chain-policies.adoc
 
 # Step 2: Verify downloads
-wc -l /tmp/prisma-aws-*.adoc
+wc -l prisma-cloud-docs/*.adoc
 
 # Step 3: Check if any new category folders appeared
 curl -sL "https://api.github.com/repos/hlxsites/prisma-cloud-docs/contents/docs/en/enterprise-edition/policy-reference/aws-policies" | python3 -c "import json,sys; data=json.load(sys.stdin); [print(x['name'], x['type']) for x in data]"
-
-# Step 4: Parse adoc → markdown (dùng Kiro AI với prompt:
-#   "Parse các file /tmp/prisma-aws-*.adoc thành bảng markdown Policy|Checkov ID|Severity,
-#    ghi đè vào severity-prismacloud.md, giữ nguyên format hiện tại")
 ```
 
 </details>
@@ -272,6 +267,33 @@ curl -sL "https://api.github.com/repos/hlxsites/prisma-cloud-docs/contents/docs/
 | Unencrypted ECR repositories | CKV_AWS_136 | LOW |
 | Unencrypted RDS global clusters | CKV_AWS_140 | LOW |
 | WAF rule does not have any actions | CKV_AWS_342 | LOW |
+| AWS AppSync has field-level logging disabled | CKV_AWS_194 | LOW |
+| AWS CloudFront web distribution with AWS Web Application Firewall (AWS WAF) service disabled | CKV_AWS_68 | LOW |
+| AWS CloudTrail logging is disabled | CKV_AWS_251 | LOW |
+| AWS Config must record all possible resources | CKV2_AWS_48 | LOW |
+| AWS Config Recording is disabled | CKV2_AWS_45 | LOW |
+| AWS DAX cluster not configured with encryption at rest | CKV_AWS_47 | LOW |
+| AWS DynamoDB encrypted using AWS owned CMK instead of AWS managed CMK | CKV_AWS_119 | LOW |
+| AWS DynamoDB table Auto Scaling not enabled | CKV2_AWS_16 | LOW |
+| AWS EC2 Auto Scaling Launch Configuration is not using encrypted EBS volumes | CKV_AWS_8 | LOW |
+| AWS ECS task definition is not configured with read-only access to container root filesystems | CKV_AWS_336 | LOW |
+| AWS Elastic Beanstalk environment managed platform updates are not enabled | CKV_AWS_340 | LOW |
+| AWS ElastiCache Redis cluster automatic version upgrade disabled | CKV_AWS_322 | LOW |
+| AWS ElastiCache Redis cluster is not configured with automatic backup | CKV_AWS_134 | LOW |
+| AWS ElastiCache Redis cluster with Multi-AZ Automatic Failover feature set to disabled | CKV2_AWS_50 | LOW |
+| AWS EMR cluster is not configured with security configuration | CKV2_AWS_55 | LOW |
+| AWS GuardDuty detector is not enabled | CKV_AWS_238 | LOW |
+| AWS Neptune cluster deletion protection is disabled | CKV2_AWS_58 | LOW |
+| AWS Neptune DB clusters have backup retention period less than 7 days | CKV_AWS_361 | LOW |
+| AWS RDS cluster delete protection is disabled | CKV_AWS_139 | LOW |
+| AWS RDS DB cluster is encrypted using default KMS key instead of CMK | CKV_AWS_327 | LOW |
+| AWS RDS instance with copy tags to snapshots disabled | CKV2_AWS_60 | LOW |
+| AWS RDS Postgres Cluster does not have query logging enabled | CKV2_AWS_27 | LOW |
+| AWS Redshift Cluster not encrypted using Customer Managed Key | CKV_AWS_142 | LOW |
+| AWS SageMaker notebook instance with root access enabled | CKV_AWS_307 | LOW |
+| AWS SQS queue access policy is overly permissive | CKV_AWS_387 | LOW |
+| AWS SQS queue encryption using default KMS key instead of CMK | CKV2_AWS_73 | LOW |
+| CloudTrail Event Data Store does not use Customer Managed Keys (CMKs) | CKV_AWS_294 | LOW |
 
 ## AWS Elasticsearch Policies
 
@@ -331,6 +353,14 @@ curl -sL "https://api.github.com/repos/hlxsites/prisma-cloud-docs/contents/docs/
 | Resource exposure allows modification of policies and exposes resources | CKV_AWS_109 | LOW |
 | Respective logs of Amazon RDS are disabled | CKV_AWS_129 | LOW |
 | Write access allowed without constraint | CKV_AWS_111 | LOW |
+| AWS EC2 Instance IAM Role not enabled | CKV2_AWS_41 | LOW |
+| AWS IAM group not in use | CKV2_AWS_14 | LOW |
+| AWS IAM password policy does not expire in 90 days | CKV_AWS_9 | LOW |
+| AWS IAM password policy does not have a lowercase character | CKV_AWS_11 | LOW |
+| AWS IAM password policy does not have a minimum of 14 characters | CKV_AWS_10 | LOW |
+| AWS IAM password policy does not have a symbol | CKV_AWS_14 | LOW |
+| AWS IAM password policy does not have an uppercase character | CKV_AWS_15 | LOW |
+| SQS policy allows all actions | CKV_AWS_72 | LOW |
 
 ## AWS Kubernetes Policies
 
@@ -341,6 +371,7 @@ curl -sL "https://api.github.com/repos/hlxsites/prisma-cloud-docs/contents/docs/
 | AWS EKS cluster does not have secrets encryption enabled | CKV_AWS_58 | MEDIUM |
 | AWS EKS cluster endpoint access publicly enabled | CKV_AWS_39 | LOW |
 | AWS EKS cluster security group overly permissive to all traffic | CKV_AWS_38 | LOW |
+| AWS EKS control plane logging disabled | CKV_AWS_37 | LOW |
 
 ## AWS Logging Policies
 
@@ -376,6 +407,18 @@ curl -sL "https://api.github.com/repos/hlxsites/prisma-cloud-docs/contents/docs/
 | RDS instances have performance insights disabled | CKV_AWS_353 | LOW |
 | S3 buckets do not have event notifications enabled | CKV2_AWS_62 | LOW |
 | State machine does not have X-ray tracing enabled | CKV_AWS_284 | LOW |
+| AWS CloudFront distribution with access logging disabled | CKV_AWS_86 | LOW |
+| AWS CloudTrail is not enabled with multi trail and not capturing all management events | CKV_AWS_67 | LOW |
+| AWS CloudTrail logs are not encrypted using Customer Master Keys (CMKs) | CKV_AWS_35 | LOW |
+| AWS CloudTrail trail logs is not integrated with CloudWatch Log | CKV2_AWS_10 | LOW |
+| AWS CloudWatch log groups retention set to less than 365 days | CKV_AWS_338 | LOW |
+| AWS CodeBuild project not configured with logging configuration | CKV_AWS_314 | LOW |
+| AWS Customer Master Key (CMK) rotation is not enabled | CKV_AWS_7 | LOW |
+| AWS Elastic Load Balancer (Classic) with access log disabled | CKV_AWS_92 | LOW |
+| AWS Elastic Load Balancer v2 (ELBv2) with access log disabled | CKV_AWS_91 | LOW |
+| AWS Network Firewall is not configured with logging configuration | CKV2_AWS_63 | LOW |
+| AWS Redshift database does not have audit logging enabled | CKV_AWS_71 | LOW |
+| AWS VPC Flow Logs not enabled | CKV2_AWS_11 | LOW |
 
 ## AWS Networking Policies
 
@@ -447,6 +490,11 @@ curl -sL "https://api.github.com/repos/hlxsites/prisma-cloud-docs/contents/docs/
 | S3 Bucket does not have public access blocks | CKV2_AWS_6 | LOW |
 | Security Groups are not attached to EC2 instances or ENIs | CKV2_AWS_5 | LOW |
 | VPC endpoint service is not configured for manual acceptance | CKV_AWS_123 | LOW |
+| AWS Elastic Load Balancer v2 (ELBv2) with cross-zone load balancing disabled | CKV_AWS_152 | LOW |
+| AWS Network ACL is not in use | CKV2_AWS_1 | LOW |
+| AWS SageMaker notebook instance is not placed in VPC | CKV_AWS_306 | LOW |
+| AWS Security Group allows all traffic on RDP port (3389) | CKV_AWS_25 | LOW |
+| AWS Security Group allows all traffic on SSH port (22) | CKV_AWS_24 | LOW |
 
 ## AWS Public Policies
 
@@ -475,6 +523,7 @@ curl -sL "https://api.github.com/repos/hlxsites/prisma-cloud-docs/contents/docs/
 | S3 bucket policy allows lockout all but root user | CKV_AWS_93 | MEDIUM |
 | AWS S3 buckets do not have server side encryption | CKV_AWS_19 | LOW |
 | AWS S3 Object Versioning is disabled | CKV_AWS_21 | LOW |
+| AWS Access logging not enabled on S3 buckets | CKV_AWS_18 | LOW |
 
 ## AWS Secrets Policies
 
@@ -490,6 +539,7 @@ curl -sL "https://api.github.com/repos/hlxsites/prisma-cloud-docs/contents/docs/
 |--------|-----------|----------|
 | AWS Lambda encryption settings environmental variable is not set properly | CKV_AWS_173 | LOW |
 | AWS Lambda functions with tracing not enabled | CKV_AWS_50 | LOW |
+
 ## AWS Supply Chain Policies
 
 | Policy | Checkov ID | Severity |
